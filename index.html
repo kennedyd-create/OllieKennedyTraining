@@ -354,13 +354,17 @@ const TIPS = [
  {id:"t16",cat:"Recovery",title:"Sore? Keep moving",body:"Some soreness 1–2 days after training is normal. A light walk, cycle or stretch helps more than lying on the couch. Sharp pain is different: stop and get it checked."},
  {id:"t17",cat:"Mindset",title:"Compete with last week",body:"Comparing yourself to people online is pointless. The only comparison that counts is your own numbers from three weeks ago."},
  {id:"t18",cat:"Training tip",title:"Sport counts too",body:"Basketball, touch or a surf all count as training. Log them under Other with an honest intensity so your weekly totals are accurate."},
- {id:"t19",cat:"Training tip",title:"Mind–muscle connection",body:"On curls, pushdowns and lateral raises, slow down and focus on the muscle doing the work. Lighter weight, better squeeze, more growth."}
+ {id:"t19",cat:"Training tip",title:"Mind–muscle connection",body:"On curls, pushdowns and lateral raises, slow down and focus on the muscle doing the work. Lighter weight, better squeeze, more growth."},
+ {id:"t20",cat:"Training to failure",title:"Failure: the upside",body:"Going to failure (the point where you can't do another clean rep) has real benefits when you use it well:",points:["Guaranteed stimulus: you recruit every available muscle fibre and get the tension that drives growth.","Time efficient: you get a lot of muscle activation from fewer sets.","Mental toughness: you learn what true intensity feels like."]},
+ {id:"t21",cat:"Training to failure",title:"Failure: the cost",body:"Doing it on every set has a price:",points:["Fatigue builds fast. Failure on your first exercise drains strength and coordination for everything after it.","Form breaks down when you're exhausted, which raises injury risk on heavy lifts like bench press, Romanian deadlifts and split squats.","Recovery takes longer, so you can do less quality training across the week."]},
+ {id:"t22",cat:"Training to failure",title:"Leave 1–3 reps in reserve",body:"Most sports science recommends finishing most sets with 1–3 reps left in the tank (\"reps in reserve\"). You still get almost all the growth benefit with far less fatigue. Save true failure for the last set of an exercise, or for safer isolation moves like curls, pushdowns and lateral raises."},
+ {id:"t23",cat:"Training to failure",title:"Try a no-failure week",body:"Every 4–6 weeks, do a full week where no set goes to failure: same exercises and weights, but stop each set with 2 reps left. Fatigue clears, joints get a rest, and you'll often come back stronger the week after. Leave the 'To failure' boxes unticked and see how you feel.",again:2}
 ];
 const TIP_BY_ID = Object.fromEntries(TIPS.map(t=>[t.id,t]));
 /* Build a mixed sequence (round-robin by category) then slot repeats in later */
 const TIP_SEQ = (()=>{
   const cats={}; TIPS.forEach(t=>{(cats[t.cat]=cats[t.cat]||[]).push(t.id)});
-  const order=["Long and Strong","Quote","Nutrition","Dynamic work","Try this exercise","Training tip","Recovery","Mindset"];
+  const order=["Long and Strong","Quote","Nutrition","Training to failure","Dynamic work","Try this exercise","Training tip","Recovery","Mindset"];
   const q=order.map(c=>(cats[c]||[]).slice()); const seq=[];
   while(q.some(a=>a.length)) q.forEach(a=>{ if(a.length) seq.push(a.shift()); });
   const repeats=[]; TIPS.forEach(t=>{for(let k=1;k<=(t.again||0);k++) repeats.push({id:t.id,k})});
@@ -439,7 +443,7 @@ function updateNote(){
                   S.mode==="local" ? "Saved on this device only. Download a backup every few weeks from Performance Tracking." : "Loading…";
 }
 /* Ollie's starting record, loaded the first time the site opens on a device */
-const SEED={profile:{dob:"2011-10-11",start:"2026-10-25"},popups:{lastTip:"2026-10-25",tipIdx:0,tipCount:0},checkins:[
+const SEED={profile:{dob:"2011-10-11",start:"2026-10-25"},popups:{nextTip:"m1",tipIdx:0,tipCount:0},checkins:[
   {id:"start-2026-08-25",date:"2026-08-25",weight:69,height:174.5,bench:null,pullups:null,bicep:null,kind:"start"},
   {id:"real-2026-09-25-bench",date:"2026-09-25",weight:null,height:null,bench:70,pullups:null,bicep:null,kind:"check"},
   {id:"real-2026-10-25-pullups",date:"2026-10-25",weight:null,height:null,bench:null,pullups:4,bicep:null,kind:"check"},
@@ -795,7 +799,7 @@ function insights(){
   if(bestImp) out.push({c:"good",t:`${bestImp.n} top set is up ${fmtN(bestImp.d)} kg since ${fmtShort(bestImp.from)}. That's progressive overload working.`});
   let sets=0,fail=0; recent.forEach(s=>{if(s.type==="gym")s.exercises.forEach(e=>e.sets.forEach(x=>{sets++;if(x.f)fail++}))});
   if(sets>=15){ const p=Math.round(fail/sets*100);
-    if(p>50) out.push({c:"warn",t:`${p}% of your sets in the last 4 weeks went to failure. Try keeping failure for the last set of each exercise.`});
+    if(p>50) {}
     else if(p===0) out.push({c:"",t:`No sets to failure in the last 4 weeks. Push the final set of one or two exercises all the way next session.`});
     else out.push({c:"good",t:`${p}% of your recent sets went to failure: a healthy mix of hard work and recovery.`}); }
   const notes=coachNotes(); notes.forEach(n=>out.push({c:n.c||"warn",t:n.t}));
@@ -847,6 +851,17 @@ function coachNotes(){
         t:`Great to see you back after ${prevGap} days off. Gains come back quickly thanks to "muscle memory": your muscles and nervous system remember how to do the work. For the first session or two, use about 80–90% of your usual weights and leave a couple of reps in the tank. You'll be back to your old numbers within a week or two.`});
     }
   }
+  // Training to failure too often
+  { let sets=0,fail=0; const heavy=new Set(), COMPOUND=["Bench Press","Incline Dumbbell Press","Shoulder Press","Romanian Deadlift","Bulgarian Split Squats","Back Squat","Front Squat","Deadlift","Barbell Row","Leg Press","Close-Grip Bench Press","Hip Thrust","Lat Pulldown","Wide Grip Row","Close Grip Row"];
+    rec.filter(s=>s.type==="gym").forEach(s=>s.exercises.forEach(e=>e.sets.forEach(x=>{sets++; if(x.f){fail++; if(COMPOUND.includes(e.name)) heavy.add(e.name)}})));
+    const pc=sets?Math.round(fail/sets*100):0;
+    if(sets>=15&&pc>50){ const hv=[...heavy].slice(0,3);
+      out.push({key:"failure-high",title:"Lots of sets to failure",
+        t:`${pc}% of your gym sets in the last 4 weeks went to failure${hv.length?`, including heavy lifts like ${hv.join(", ")}`:""}. Keep 1–3 reps in reserve on most sets, save failure for the last set or for isolation exercises, and try a no-failure week every 4–6 weeks.`,
+        html:`<p><b>${pc}%</b> of your gym sets in the last 4 weeks went to failure${hv.length?`, including heavy lifts like ${esc(hv.join(", "))}`:""}. Hard work is great, but failure on almost every set costs more than it gives.</p>
+          <p><b>The upside</b></p><ul style="margin:0;padding-left:20px;display:grid;gap:4px"><li>Recruits every available muscle fibre for maximum growth stimulus.</li><li>Lots of activation from fewer sets.</li><li>Builds mental toughness.</li></ul>
+          <p><b>The cost</b></p><ul style="margin:0;padding-left:20px;display:grid;gap:4px"><li>Fatigue snowballs: failure early in a session weakens every exercise after it.</li><li>Form breaks down when exhausted, raising injury risk on heavy compound lifts.</li><li>Recovery takes longer, so total quality training each week drops.</li></ul>
+          <p><b>What to do:</b> finish most sets with 1–3 reps still in the tank. Save true failure for the last set of an exercise, or for safer isolation moves like curls, pushdowns and lateral raises. Every 4–6 weeks, take a <b>no-failure week</b>: same exercises, but stop every set 2 reps short. Fatigue clears and you'll often come back stronger.</p>`}); } }
   // Plateaus: normal, and what to do about them
   const pl=plateaus();
   if(pl.length){ const names=pl.slice(0,3).map(x=>x.name), list=names.length>1?names.slice(0,-1).join(", ")+" and "+names[names.length-1]:names[0];
@@ -901,10 +916,6 @@ function renderTrack(){
       <div class="card"><h3>Training calendar · last 12 weeks</h3>${calendar()}
         <div class="legend">${Object.keys(CAT_LABEL).map(k=>`<span><i style="background:var(${CAT_VAR[k]})"></i>${CAT_LABEL[k]}</span>`).join("")}</div></div>
     </div>
-    <div class="grid2">
-      <div class="card"><h3>Workouts per week</h3><div class="chartbox tall"><canvas id="c-weekly"></canvas></div></div>
-      <div class="card"><h3>Session mix · last 8 weeks</h3><div class="chartbox tall"><canvas id="c-split"></canvas></div></div>
-    </div>
     <div class="card"><h3>Training load per week</h3><div class="chartbox tall"><canvas id="c-load"></canvas></div>
       <p class="hint" style="margin-top:8px">Load = minutes × intensity (1–6) for every session. It shows how hard each week was overall. Gym sessions without a length or intensity are estimated from the number of sets. A week far above the line (your 4-week average) is a sign to take it easier.</p></div>
     <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Exercise progress</h3>
@@ -939,11 +950,13 @@ function calendar(){
     const fut=d>todayStr(); h+=`<span class="day" title="${fmtDate(d)}${c?": "+c.map(x=>CAT_LABEL[x]).join(", "):""}" style="${c?`background:var(${CAT_VAR[c[0]]})`:""}${fut?";opacity:.35":""}"></span>`}); }
   return h+"</div>";
 }
+/* NZ Health Survey 2024/25 (Ministry of Health, via Figure.NZ): average height of men aged 15–24 */
+const NZ_MEN_15_24=177;
 function heightNote(){
   const H=latest("height"); const hp=H?heightPct(H.height,H.date):null;
-  if(!hp) return `<p class="hint" style="margin-top:8px">Dashed line: WHO median height for boys his age.</p>`;
+  if(!hp) return `<p class="hint" style="margin-top:8px">Gold line: average height of NZ men aged 15–24 (${NZ_MEN_15_24} cm, NZ Health Survey 2024/25).</p>`;
   const y=Math.floor(hp.months/12), m=Math.floor(hp.months%12);
-  return `<p class="hint" style="margin-top:8px">${H.height} cm at ${y} y ${m} m is on the <b>${ordinal(Math.round(hp.p))} centile</b> for boys (WHO 2007 growth reference). Median for that age: ${fmtN(hp.M)} cm, shown as the dashed line.</p>`;
+  return `<p class="hint" style="margin-top:8px">${H.height} cm at ${y} y ${m} m is on the <b>${ordinal(Math.round(hp.p))} centile</b> for boys (WHO 2007 growth reference). Median for that age: ${fmtN(hp.M)} cm (grey dashed line). NZ doesn't publish an age-by-age chart for teenagers, so the gold line shows the average for NZ men aged 15–24: ${NZ_MEN_15_24} cm (NZ Health Survey 2024/25), roughly where he's heading.</p>`;
 }
 function histRow(s){
   const c=catOf(s); let title,detail;
@@ -957,27 +970,18 @@ function histRow(s){
 function emptyBox(id,msg){const c=document.getElementById(id);if(!c)return;const p=c.parentElement;p.querySelector(".empty")?.remove();c.hidden=true;const d=document.createElement("div");d.className="empty";d.textContent=msg;p.appendChild(d)}
 function mk(id,cfg){ if(charts[id]){charts[id].destroy();delete charts[id]} const el=document.getElementById(id); if(!el||!window.Chart) return; charts[id]=new Chart(el,cfg); }
 function drawCharts(){
-  if(!window.Chart){ ["c-weekly","c-split","c-ex","c-weight","c-height","c-bicep","c-strength","c-cardio"].forEach(id=>emptyBox(id,"Charts couldn't load. Check the internet connection and reopen.")); return; }
+  if(!window.Chart){ ["c-load","c-ex","c-weight","c-height","c-bicep","c-strength","c-cardio"].forEach(id=>emptyBox(id,"Charts couldn't load. Check the internet connection and reopen.")); return; }
   const ink=cssv("--ink-soft"), grid=cssv("--line"), col=k=>cssv(CAT_VAR[k]), gold=cssv("--gold"), pull=cssv("--pull");
   Chart.defaults.font.family="Manrope, system-ui, sans-serif"; Chart.defaults.color=ink;
   const sc=(extra={})=>({grid:{color:grid},border:{color:grid},ticks:{color:ink},...extra});
   const base=(o={})=>({responsive:true,maintainAspectRatio:false,animation:{duration:400},plugins:{legend:{labels:{color:ink,boxWidth:10,boxHeight:10,usePointStyle:true}}},...o});
-  // weekly stacked
   const weeks=weeksBack(12), cats=Object.keys(CAT_LABEL);
-  if(!S.sessions.length) emptyBox("c-weekly","Weekly totals appear once sessions are logged.");
-  else mk("c-weekly",{type:"bar",data:{labels:weeks.map(fmtShort),datasets:cats.map(k=>({label:CAT_LABEL[k],backgroundColor:col(k),borderRadius:3,data:weeks.map(w=>S.sessions.filter(s=>catOf(s)===k&&mondayOf(s.dt.slice(0,10))===w).length)}))},
-    options:base({scales:{x:sc({stacked:true,grid:{display:false}}),y:sc({stacked:true,beginAtZero:true,ticks:{color:ink,precision:0}})}})});
   // training load
   if(!S.sessions.length) emptyBox("c-load","Training load appears once sessions are logged.");
   else { const tot=weeks.map(w=>weekLoad(w)), avg4=weeks.map((w,i)=>{const p=[1,2,3,4].map(k=>addDays(w,-7*k)).map(x=>weekLoad(x));return Math.round(p.reduce((a,b)=>a+b,0)/4)});
     mk("c-load",{data:{labels:weeks.map(fmtShort),datasets:[...cats.map(k=>({type:"bar",label:CAT_LABEL[k],backgroundColor:col(k),borderRadius:3,stack:"l",data:weeks.map(w=>weekLoad(w,k))})),
       {type:"line",label:"4-week average",data:avg4,borderColor:cssv("--ink"),borderDash:[5,4],borderWidth:1.5,pointRadius:0,tension:.3}]},
       options:base({scales:{x:sc({stacked:true,grid:{display:false}}),y:sc({stacked:true,beginAtZero:true})}})}); }
-  // split doughnut
-  const since=addDays(todayStr(),-56), rec=S.sessions.filter(s=>s.dt.slice(0,10)>=since);
-  if(!rec.length) emptyBox("c-split","No sessions in the last 8 weeks yet.");
-  else mk("c-split",{type:"doughnut",data:{labels:cats.map(k=>CAT_LABEL[k]),datasets:[{data:cats.map(k=>rec.filter(s=>catOf(s)===k).length),backgroundColor:cats.map(col),borderColor:cssv("--surface"),borderWidth:3}]},
-    options:base({cutout:"62%",plugins:{legend:{position:"right",labels:{color:ink,usePointStyle:true}}}})});
   // exercise progress
   if(!trackEx) emptyBox("c-ex","Log a gym session to see progress for each exercise.");
   else{ const pts=sortedSessions().slice().reverse().filter(s=>s.type==="gym"&&s.exercises.some(e=>e.name===trackEx)).map(s=>{const e=s.exercises.find(x=>x.name===trackEx),t=topSet(e);return{d:s.dt,w:t.w,r:t.r,vol:e.sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0),reps:e.sets.reduce((a,x)=>a+x.r,0)}});
@@ -992,7 +996,8 @@ function drawCharts(){
     const d=ci.filter(x=>x[f]!=null); if(!d.length) return emptyBox(id,"Added during PB Week check-ins.");
     const ds=[{label:{weight:"Weight",height:"Height",bicep:"Right bicep",waist:"Waist"}[f],data:d.map(x=>x[f]),borderColor:c,backgroundColor:c+"22",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:c}];
     if(f==="height"&&S.profile&&S.profile.dob){ const med=d.map(x=>{const r=hfaAt(monthsOld(S.profile.dob,x.date));return r?Math.round(r.M*10)/10:null});
-      if(med.some(v=>v!=null)) ds.push({label:"WHO median for age",data:med,borderColor:ink,borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.3,spanGaps:true}); }
+      if(med.some(v=>v!=null)) ds.push({label:"WHO median for his age",data:med,borderColor:ink,borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.3,spanGaps:true}); }
+    if(f==="height") ds.push({label:`NZ men 15–24 average (${NZ_MEN_15_24} cm)`,data:d.map(()=>NZ_MEN_15_24),borderColor:gold,borderDash:[2,3],borderWidth:2,pointRadius:0,fill:false});
     mk(id,{type:"line",data:{labels:d.map(x=>fmtShort(x.date)),datasets:ds},
       options:base({plugins:{legend:{display:ds.length>1,labels:{color:ink,usePointStyle:true,boxWidth:10}}},scales:{x:sc({grid:{display:false}}),y:sc({grace:"10%"})}})}); });
   // strength PBs
@@ -1094,19 +1099,20 @@ function openPbWeek(pi){
     }});
 }
 function openCoach(n){
-  openModal({tag:"Coach's note",title:n.title,locked:true,body:`<p>${esc(n.t)}</p><div class="mf"><label class="readbox"><input type="checkbox" id="tip-read">I have read this</label><button type="button" class="btn primary" id="tip-close" disabled>Close</button></div>`,
+  openModal({tag:"Coach's note",title:n.title,locked:true,body:`${n.html||`<p>${esc(n.t)}</p>`}<div class="mf"><label class="readbox"><input type="checkbox" id="tip-read">I have read this</label><button type="button" class="btn primary" id="tip-close" disabled>Close</button></div>`,
     onMount:(root,close)=>{ const cb=$("#tip-read",root),bt=$("#tip-close",root); cb.onchange=()=>{bt.disabled=!cb.checked};
       bt.onclick=async()=>{ if(!cb.checked) return; close(); const p=S.popups;
         await savePopups({...p,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,coachLog:{...(p.coachLog||{}),[n.key]:todayStr()}}); renderAll(); }; }});
 }
-function openTip(tip,idx){
-  const body = (tip.quote?`<blockquote>“${esc(tip.quote)}”</blockquote><cite>${esc(tip.by)}</cite>`:"")+`<p>${esc(tip.body)}</p>`+
+function openTip(tip,idx,forced){
+  const body = (tip.quote?`<blockquote>“${esc(tip.quote)}”</blockquote><cite>${esc(tip.by)}</cite>`:"")+`<p>${esc(tip.body)}</p>`+(tip.points?`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${tip.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
     `<div class="mf"><label class="readbox"><input type="checkbox" id="tip-read">I have read this</label><button type="button" class="btn primary" id="tip-close" disabled>Close</button></div>`;
   openModal({tag:tip.cat,title:tip.title,locked:true,body,onMount:(root,close)=>{
     const cb=$("#tip-read",root),bt=$("#tip-close",root); cb.onchange=()=>{bt.disabled=!cb.checked};
     bt.onclick=async()=>{ if(!cb.checked) return; close();
       const p=S.popups, hist=(p.history||[]).concat({id:tip.id,date:todayStr()}).slice(-60);
-      await savePopups({...p,tipIdx:idx+1,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,history:hist}); renderAll(); };
+      const np={...p,tipIdx:forced&&TIP_SEQ[idx%TIP_SEQ.length]!==tip.id?idx:idx+1,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,history:hist}; delete np.nextTip;
+      await savePopups(np); renderAll(); };
   }});
 }
 let popupsRan=false;
@@ -1114,6 +1120,7 @@ function runPopups(){
   if(popupsRan) return; popupsRan=true;
   if(!S.profile){openSetup();return}
   const pi=pbInfo(); if(pi&&pi.live&&S.popups.pbAck!==pi.cycle){openPbWeek(pi);return}
+  if(S.popups.nextTip&&TIP_BY_ID[S.popups.nextTip]){ openTip(TIP_BY_ID[S.popups.nextTip],S.popups.tipIdx||0,true); return; }
   const p=S.popups, gap=(p.tipCount||0)%2===0?2:3; // alternating 2- and 3-day gaps ≈ 2–3 pop-ups a week
   if(!p.lastTip||daysBetween(p.lastTip,todayStr())>=gap){
     // A coaching note about a real imbalance takes the slot (each one at most every 14 days); otherwise the next tip in the deck
