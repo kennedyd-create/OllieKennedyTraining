@@ -30,6 +30,7 @@
   --display:'Big Shoulders Display',Impact,'Arial Narrow',sans-serif;
   --font:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  --pop:#b42318; --pop-2:#8f1c13; --pop-tag:#ffd7a3;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -41,6 +42,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#080e1c; --surface:#111a2e; --surface-2:#16223b; --surface-3:#1d2b49;
@@ -51,6 +53,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3;
   color-scheme:dark}
 *{box-sizing:border-box}
 img{max-width:100%}
@@ -204,8 +207,11 @@ input[type=number]{font-family:var(--mono)}
 /* ---------- Modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(5,10,24,.62);display:grid;place-items:center;z-index:50;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fade .18s ease}
 .modal{background:var(--surface);color:var(--ink);border-radius:18px;max-width:560px;width:100%;max-height:100%;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);animation:pop .25s cubic-bezier(.2,.9,.3,1.2)}
-.modal .mh{padding:20px 22px 16px;background:var(--navy);color:var(--on-navy);position:relative}
-.modal .mh .tag{color:#e2bb66}
+.modal .mh{padding:20px 22px 16px;background:linear-gradient(135deg,var(--pop),var(--pop-2));color:var(--on-navy);position:relative}
+.modal .mh .tag{color:var(--pop-tag)}
+.modal .btn.primary{background:var(--pop);border-color:var(--pop);color:#fff}
+.modal .readbox input{accent-color:var(--pop)}
+.modal blockquote{border-left-color:var(--pop)}
 .modal .mh h2{font-family:var(--display);font-weight:900;font-size:34px;line-height:.98;text-transform:uppercase;margin:6px 0 0;text-wrap:balance}
 .modal .mb{padding:18px 22px 22px;display:grid;gap:14px}
 .modal .mb p{margin:0;font-size:15.5px;max-width:62ch}
@@ -891,6 +897,17 @@ function coachNotes(){
 function streak(){ const ws=new Set(S.sessions.map(s=>mondayOf(s.dt.slice(0,10)))); let m=mondayOf(todayStr()); if(!ws.has(m)) m=addDays(m,-7); let n=0; while(ws.has(m)){n++;m=addDays(m,-7)} return n; }
 function exerciseNames(){const s=new Set();S.sessions.forEach(x=>{if(x.type==="gym")x.exercises.forEach(e=>s.add(e.name))});return [...s].sort()}
 let trackEx=null, histLimit=12;
+/* Actual / % change toggle per chart (remembered on this device) */
+let MODES={}; try{ MODES=JSON.parse(localStorage.getItem("ollie-chart-modes")||"{}")||{} }catch(e){}
+const isPct=id=>MODES[id]==="pct";
+function pctSeries(a){ const b=a.find(v=>v!=null&&v!==0); return a.map(v=>v==null||b==null?null:Math.round((v/b-1)*1000)/10); }
+const signed=v=>(v>0?"+":"")+v+"%";
+function changeChip(vals,neutral){ const v=vals.filter(x=>x!=null&&x!==0); if(v.length<2) return ""; const c=Math.round((v[v.length-1]/v[0]-1)*1000)/10;
+  return `<span class="num" style="font-weight:800;font-size:13px;color:${neutral?"var(--ink-soft)":c>0?"var(--ok)":c<0?"var(--bad)":"var(--ink-soft)"}">${signed(c)}</span>`; }
+function cardHead(title,id,vals,neutral){
+  return `<div class="row" style="justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px"><h3 style="margin:0">${title} ${vals?changeChip(vals,neutral):""}</h3>
+    <div class="seg small" role="group" aria-label="Chart view"><button type="button" data-cmode="${id}|actual" aria-pressed="${!isPct(id)}">Actual</button><button type="button" data-cmode="${id}|pct" aria-pressed="${isPct(id)}">% change</button></div></div>`;
+}
 function renderTrack(){
   const v=$("#view-track"), pi=pbInfo(), ss=sortedSessions();
   const wk=mondayOf(todayStr()), thisWeek=ss.filter(s=>mondayOf(s.dt.slice(0,10))===wk).length;
@@ -918,17 +935,17 @@ function renderTrack(){
     </div>
     <div class="card"><h3>Training load per week</h3><div class="chartbox tall"><canvas id="c-load"></canvas></div>
       <p class="hint" style="margin-top:8px">Load = minutes × intensity (1–6) for every session. It shows how hard each week was overall. Gym sessions without a length or intensity are estimated from the number of sets. A week far above the line (your 4-week average) is a sign to take it easier.</p></div>
-    <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Exercise progress</h3>
-      ${names.length?`<select id="t-ex" aria-label="Exercise">${names.map(n=>`<option ${n===trackEx?"selected":""}>${esc(n)}</option>`).join("")}</select>`:""}</div>
-      <div class="chartbox tall"><canvas id="c-ex"></canvas></div><p class="hint" style="margin-top:8px">Line: heaviest set each session. Bars: total volume (weight × reps across all sets).</p></div>
+    <div class="card">${cardHead("Exercise progress","c-ex",exTops())}
+      ${names.length?`<select id="t-ex" aria-label="Exercise" style="margin-bottom:10px">${names.map(n=>`<option ${n===trackEx?"selected":""}>${esc(n)}</option>`).join("")}</select>`:""}
+      <div class="chartbox tall"><canvas id="c-ex"></canvas></div><p class="hint" style="margin-top:8px">${isPct("c-ex")?`Heaviest set each session as % change from the first time you logged ${esc(trackEx||"it")}.`:"Line: heaviest set each session. Bars: total volume (weight × reps across all sets)."}</p></div>
     <div class="grid2">
-      <div class="card"><h3>Weight (kg)</h3><div class="chartbox"><canvas id="c-weight"></canvas></div></div>
+      <div class="card">${cardHead("Weight (kg)","c-weight",sortedCheckins().map(x=>x.weight))}<div class="chartbox"><canvas id="c-weight"></canvas></div></div>
       <div class="card"><h3>Height (cm)</h3><div class="chartbox"><canvas id="c-height"></canvas></div>${heightNote()}</div>
-      <div class="card"><h3>Right bicep, flexed (cm)</h3><div class="chartbox"><canvas id="c-bicep"></canvas></div></div>
-      <div class="card"><h3>Waist at belly button (cm)</h3><div class="chartbox"><canvas id="c-waist"></canvas></div></div>
+      <div class="card">${cardHead("Right bicep, flexed (cm)","c-bicep",sortedCheckins().map(x=>x.bicep))}<div class="chartbox"><canvas id="c-bicep"></canvas></div></div>
+      <div class="card">${cardHead("Waist at belly button (cm)","c-waist",sortedCheckins().map(x=>x.waist),true)}<div class="chartbox"><canvas id="c-waist"></canvas></div></div>
     </div>
     <div class="grid2">
-      <div class="card"><h3>PB history · bench &amp; pull-ups</h3><div class="chartbox"><canvas id="c-strength"></canvas></div></div>
+      <div class="card">${cardHead("PB history · bench &amp; pull-ups","c-strength")}<div class="chartbox"><canvas id="c-strength"></canvas></div>${isPct("c-strength")?`<p class="hint" style="margin-top:8px">Both lines start at 0% at their first record, so you can compare how fast each is improving.</p>`:""}</div>
       <div class="card"><h3>Cardio · distance &amp; intensity</h3><div class="chartbox"><canvas id="c-cardio"></canvas></div></div>
     </div>
     <div class="grid2">
@@ -943,6 +960,8 @@ function renderTrack(){
       <p class="err" id="t-restore-msg" style="margin-top:8px"></p></div>`;
   drawCharts();
 }
+function exPoints(){ if(!trackEx) return []; return sortedSessions().slice().reverse().filter(s=>s.type==="gym"&&s.exercises.some(e=>e.name===trackEx)).map(s=>{const e=s.exercises.find(x=>x.name===trackEx),t=topSet(e);return{d:s.dt,w:t.w,r:t.r,vol:e.sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0),reps:e.sets.reduce((a,x)=>a+x.r,0)}}); }
+function exTops(){ const pts=exPoints(), bw=pts.length&&pts.every(p=>!p.w); return pts.map(p=>bw?p.r:p.w); }
 function calendar(){
   const weeks=weeksBack(12), byDay={}; S.sessions.forEach(s=>{const d=s.dt.slice(0,10);(byDay[d]=byDay[d]||[]).push(catOf(s))});
   const days=["Mon","","Wed","","Fri","","Sun"]; let h=`<div class="cal"><span></span>${weeks.map(w=>`<span class="wk">${parseYmd(w).getDate()}/${parseYmd(w).getMonth()+1}</span>`).join("")}`;
@@ -970,7 +989,7 @@ function histRow(s){
 function emptyBox(id,msg){const c=document.getElementById(id);if(!c)return;const p=c.parentElement;p.querySelector(".empty")?.remove();c.hidden=true;const d=document.createElement("div");d.className="empty";d.textContent=msg;p.appendChild(d)}
 function mk(id,cfg){ if(charts[id]){charts[id].destroy();delete charts[id]} const el=document.getElementById(id); if(!el||!window.Chart) return; charts[id]=new Chart(el,cfg); }
 function drawCharts(){
-  if(!window.Chart){ ["c-load","c-ex","c-weight","c-height","c-bicep","c-strength","c-cardio"].forEach(id=>emptyBox(id,"Charts couldn't load. Check the internet connection and reopen.")); return; }
+  if(!window.Chart){ ["c-load","c-ex","c-weight","c-height","c-bicep","c-waist","c-strength","c-cardio"].forEach(id=>emptyBox(id,"Charts couldn't load. Check the internet connection and reopen.")); return; }
   const ink=cssv("--ink-soft"), grid=cssv("--line"), col=k=>cssv(CAT_VAR[k]), gold=cssv("--gold"), pull=cssv("--pull");
   Chart.defaults.font.family="Manrope, system-ui, sans-serif"; Chart.defaults.color=ink;
   const sc=(extra={})=>({grid:{color:grid},border:{color:grid},ticks:{color:ink},...extra});
@@ -984,7 +1003,13 @@ function drawCharts(){
       options:base({scales:{x:sc({stacked:true,grid:{display:false}}),y:sc({stacked:true,beginAtZero:true})}})}); }
   // exercise progress
   if(!trackEx) emptyBox("c-ex","Log a gym session to see progress for each exercise.");
-  else{ const pts=sortedSessions().slice().reverse().filter(s=>s.type==="gym"&&s.exercises.some(e=>e.name===trackEx)).map(s=>{const e=s.exercises.find(x=>x.name===trackEx),t=topSet(e);return{d:s.dt,w:t.w,r:t.r,vol:e.sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0),reps:e.sets.reduce((a,x)=>a+x.r,0)}});
+  else if(isPct("c-ex")){ const pts=exPoints(), bw=pts.every(p=>!p.w), c=cssv("--pull");
+    const top=pctSeries(pts.map(p=>bw?p.r:p.w)), vol=pctSeries(pts.map(p=>bw?p.reps:p.vol));
+    mk("c-ex",{data:{labels:pts.map(p=>fmtShort(p.d)),datasets:[
+      {type:"line",label:bw?"Best set, % change":"Heaviest set, % change",data:top,borderColor:c,backgroundColor:c+"22",fill:true,tension:.3,pointRadius:4}]},
+      options:base({plugins:{legend:{labels:{color:ink,usePointStyle:true}},tooltip:{callbacks:{label:ctx=>`${ctx.dataset.label}: ${signed(ctx.raw)}`,afterLabel:ctx=>ctx.datasetIndex===0?(bw?`${pts[ctx.dataIndex].r} reps`:`${pts[ctx.dataIndex].w} kg × ${pts[ctx.dataIndex].r}`):""}}},
+        scales:{x:sc({grid:{display:false}}),y:sc({ticks:{color:ink,callback:v=>signed(v)}})}})}); }
+  else{ const pts=exPoints();
     const bw=pts.every(p=>!p.w), c=cssv("--pull");
     mk("c-ex",{data:{labels:pts.map(p=>fmtShort(p.d)),datasets:[
       {type:"line",label:bw?"Best set (reps)":"Heaviest set (kg)",data:pts.map(p=>bw?p.r:p.w),borderColor:c,backgroundColor:c,tension:.3,pointRadius:4,yAxisID:"y"},
@@ -994,15 +1019,23 @@ function drawCharts(){
   const ci=sortedCheckins();
   [["c-weight","weight",cssv("--cardio")],["c-height","height",cssv("--pull")],["c-bicep","bicep",cssv("--push")],["c-waist","waist",cssv("--legs")]].forEach(([id,f,c])=>{
     const d=ci.filter(x=>x[f]!=null); if(!d.length) return emptyBox(id,"Added during PB Week check-ins.");
-    const ds=[{label:{weight:"Weight",height:"Height",bicep:"Right bicep",waist:"Waist"}[f],data:d.map(x=>x[f]),borderColor:c,backgroundColor:c+"22",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:c}];
+    const pct=f!=="height"&&isPct(id), raw=d.map(x=>x[f]), unit=f==="weight"?"kg":"cm";
+    const ds=[{label:{weight:"Weight",height:"Height",bicep:"Right bicep",waist:"Waist"}[f]+(pct?", % change":""),data:pct?pctSeries(raw):raw,borderColor:c,backgroundColor:c+"22",fill:true,tension:.3,pointRadius:4,pointBackgroundColor:c}];
     if(f==="height"&&S.profile&&S.profile.dob){ const med=d.map(x=>{const r=hfaAt(monthsOld(S.profile.dob,x.date));return r?Math.round(r.M*10)/10:null});
       if(med.some(v=>v!=null)) ds.push({label:"WHO median for his age",data:med,borderColor:ink,borderDash:[5,4],borderWidth:1.5,pointRadius:0,fill:false,tension:.3,spanGaps:true}); }
     if(f==="height") ds.push({label:`NZ men 15–24 average (${NZ_MEN_15_24} cm)`,data:d.map(()=>NZ_MEN_15_24),borderColor:gold,borderDash:[2,3],borderWidth:2,pointRadius:0,fill:false});
     mk(id,{type:"line",data:{labels:d.map(x=>fmtShort(x.date)),datasets:ds},
-      options:base({plugins:{legend:{display:ds.length>1,labels:{color:ink,usePointStyle:true,boxWidth:10}}},scales:{x:sc({grid:{display:false}}),y:sc({grace:"10%"})}})}); });
+      options:base({plugins:{legend:{display:ds.length>1,labels:{color:ink,usePointStyle:true,boxWidth:10}},tooltip:pct?{callbacks:{label:ctx=>`${signed(ctx.raw)} (${raw[ctx.dataIndex]} ${unit})`}}:{}},
+        scales:{x:sc({grid:{display:false}}),y:pct?sc({grace:"10%",ticks:{color:ink,callback:v=>signed(v)}}):sc({grace:"10%"})}})}); });
   // strength PBs
   const sb=ci.filter(x=>x.bench!=null||x.pullups!=null);
   if(!sb.length) emptyBox("c-strength","Bench and pull-up PBs appear after a PB Week check-in.");
+  else if(isPct("c-strength")){ const bR=sb.map(x=>x.bench??null), pR=sb.map(x=>x.pullups??null);
+    mk("c-strength",{type:"line",data:{labels:sb.map(x=>fmtShort(x.date)),datasets:[
+      {label:"Bench, % change",data:pctSeries(bR),borderColor:gold,backgroundColor:gold,tension:.3,pointRadius:4,spanGaps:true},
+      {label:"Pull-ups, % change",data:pctSeries(pR),borderColor:pull,backgroundColor:pull,tension:.3,pointRadius:4,spanGaps:true}]},
+      options:base({plugins:{legend:{labels:{color:ink,usePointStyle:true,boxWidth:10}},tooltip:{callbacks:{label:ctx=>`${ctx.datasetIndex?"Pull-ups":"Bench"}: ${signed(ctx.raw)} (${ctx.datasetIndex?pR[ctx.dataIndex]+" reps":bR[ctx.dataIndex]+" kg"})`}}},
+        scales:{x:sc({grid:{display:false}}),y:sc({grace:"10%",ticks:{color:ink,callback:v=>signed(v)}})}})}); }
   else mk("c-strength",{type:"line",data:{labels:sb.map(x=>fmtShort(x.date)),datasets:[
       {label:"Bench (kg)",data:sb.map(x=>x.bench??null),borderColor:gold,backgroundColor:gold,tension:.3,pointRadius:4,spanGaps:true,yAxisID:"y"},
       {label:"Pull-ups (reps)",data:sb.map(x=>x.pullups??null),borderColor:pull,backgroundColor:pull,tension:.3,pointRadius:4,spanGaps:true,yAxisID:"y1"}]},
@@ -1025,13 +1058,14 @@ function bindTrack(){
       b.disabled=true; b.textContent="Removing…"; (async()=>{ const ds=S.sessions.filter(x=>x.demo), dc=S.checkins.filter(x=>x.demo);
         S.sessions=S.sessions.filter(x=>!x.demo); S.checkins=S.checkins.filter(x=>!x.demo); renderAll();
         for(const x of ds) await deleteDoc("sessions",x.id); for(const x of dc) await deleteDoc("checkins",x.id); toast("Sample data removed"); })(); }
+    if(b.dataset.cmode){ const [id,m]=b.dataset.cmode.split("|"); MODES[id]=m; try{localStorage.setItem("ollie-chart-modes",JSON.stringify(MODES))}catch(e){} renderTrack(); return; }
     if(b.dataset.edit){const s=S.sessions.find(x=>x.id===b.dataset.edit); if(s) loadSession(s); return}
     if(b.id==="t-csv-w"){exportCsv("workouts");return}
     if(b.id==="t-backup"){exportBackup();return}
     if(b.id==="t-csv-m"){exportCsv("measurements");return}
     if(b.dataset.del){ if(b.dataset.armed){removeSession(b.dataset.del);toast("Session deleted")} else {b.dataset.armed="1";b.textContent="Tap to confirm";b.classList.add("primary");setTimeout(()=>{if(b.isConnected){delete b.dataset.armed;b.textContent="Delete";b.classList.remove("primary")}},3500)} }
   });
-  v.addEventListener("change",e=>{ if(e.target.id==="t-ex"){trackEx=e.target.value;drawCharts()}
+  v.addEventListener("change",e=>{ if(e.target.id==="t-ex"){trackEx=e.target.value;renderTrack()}
     if(e.target.id==="t-restore"&&e.target.files[0]){restoreBackup(e.target.files[0]);e.target.value=""} });
 }
 
