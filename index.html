@@ -241,6 +241,7 @@ input[type=number]{font-family:var(--mono)}
       <div class="meta">
         <span>Age <b id="b-age">—</b></span>
         <span id="b-pb" class="pbchip">Next PB Week —</span>
+        <button class="linkbtn" id="b-tip" type="button">Today's tip</button>
         <button class="linkbtn" id="b-edit" type="button">Edit profile</button>
       </div>
     </div>
@@ -364,22 +365,126 @@ const TIPS = [
  {id:"t20",cat:"Training to failure",title:"Failure: the upside",body:"Going to failure (the point where you can't do another clean rep) has real benefits when you use it well:",points:["Guaranteed stimulus: you recruit every available muscle fibre and get the tension that drives growth.","Time efficient: you get a lot of muscle activation from fewer sets.","Mental toughness: you learn what true intensity feels like."]},
  {id:"t21",cat:"Training to failure",title:"Failure: the cost",body:"Doing it on every set has a price:",points:["Fatigue builds fast. Failure on your first exercise drains strength and coordination for everything after it.","Form breaks down when you're exhausted, which raises injury risk on heavy lifts like bench press, Romanian deadlifts and split squats.","Recovery takes longer, so you can do less quality training across the week."]},
  {id:"t22",cat:"Training to failure",title:"Leave 1–3 reps in reserve",body:"Most sports science recommends finishing most sets with 1–3 reps left in the tank (\"reps in reserve\"). You still get almost all the growth benefit with far less fatigue. Save true failure for the last set of an exercise, or for safer isolation moves like curls, pushdowns and lateral raises."},
- {id:"t23",cat:"Training to failure",title:"Try a no-failure week",body:"Every 4–6 weeks, do a full week where no set goes to failure: same exercises and weights, but stop each set with 2 reps left. Fatigue clears, joints get a rest, and you'll often come back stronger the week after. Leave the 'To failure' boxes unticked and see how you feel.",again:2}
+ {id:"t23",cat:"Training to failure",title:"Try a no-failure week",body:"Every 4–6 weeks, do a full week where no set goes to failure: same exercises and weights, but stop each set with 2 reps left. Fatigue clears, joints get a rest, and you'll often come back stronger the week after. Leave the 'To failure' boxes unticked and see how you feel.",again:2},
+ // ---- Just for fun
+ {id:"f1",cat:"Just for fun",title:"Friends don't let friends skip Leg Day",body:"A big chest and arms on top of skinny legs is the classic 'light bulb' build. Every gym has one. Don't be the light bulb. Your legs carry you up the court, off the ground for rebounds and through every sprint.",again:1},
+ {id:"f2",cat:"Just for fun",title:"Warning: too much muscle",body:"Side effects of very big arms may include: struggling to scratch your own back, T-shirts that fit nowhere else, and turning sideways through doors. The cure for the first one is shoulder mobility. Stretch your lats and pecs after every Push and Pull day."},
+ {id:"f3",cat:"Just for fun",title:"Big muscles, slow feet?",body:"Huge muscles look great until someone half your size beats you down the court. Strength without speed is a sports car stuck in first gear. Add some sprints or jumps once a week so all that muscle can actually move fast."},
+ {id:"f4",cat:"Just for fun",title:"Grunting adds 0 kg",body:"Scientific fact: the loudness of a grunt has no effect on the weight on the bar. A sharp breath out on the hard part of the lift helps. A sound like a walrus giving birth does not."},
+ {id:"f5",cat:"Just for fun",title:"The mirror is not a spotter",body:"Checking your form in the mirror is smart. Checking your hair between every set is not. The mirror won't catch the bar if you fail a bench rep, so get a real spotter for heavy sets."},
+ {id:"f6",cat:"Just for fun",title:"Re-rack your weights",body:"Your mum doesn't work at the gym. Put your plates and dumbbells back where they live. It's also free extra exercise: carrying plates is basically a farmer's walk."},
+ {id:"f7",cat:"Just for fun",title:"Gym selfies don't count as sets",body:"Unfortunately, photos of your pump do not appear in the training load graph. Log the sets instead. The graph is a much more honest friend than Instagram."},
+ {id:"f8",cat:"Just for fun",title:"Calves: the stubborn ones",body:"Calves are famous for refusing to grow because they work all day just walking around. They need a full stretch at the bottom, a pause at the top and high reps (12–20). Or, as gym legend has it, choose taller parents."},
+ {id:"f9",cat:"Just for fun",title:"Leg Day II: The Legs Strike Back",body:"Sequels are usually worse, but a second leg session in the week is the exception. If your legs are lagging, try a short extra session: split squats, RDLs and some jumps. Your future self running a fast break will thank you."},
+ {id:"f10",cat:"Just for fun",title:"No curls in the squat rack",body:"The squat rack is for squats, presses and pull-ups. Doing curls in it is the gym equivalent of parking across two spaces. Grab some dumbbells or the EZ bar instead."},
+ {id:"f11",cat:"Just for fun",title:"The bar doesn't care about your ego",body:"Loading on more than you can lift with good form doesn't impress anyone, especially your lower back. Leave the ego at the door and let the progress graph do the bragging."},
+ {id:"f12",cat:"Just for fun",title:"Wipe the bench",body:"Nobody wants to lie in your sweat puddle. A quick wipe after each machine is basic gym manners, and you'd want the same from the person before you."},
+ {id:"f13",cat:"Just for fun",title:"Rest days aren't lazy days",body:"Telling people you're 'actively growing muscle' while lying on the couch is technically true. Muscles grow during recovery, not during the workout. Just make sure the couch day includes a walk and some stretching."},
+ {id:"f14",cat:"Just for fun",title:"Skip day vs skip Leg Day",body:"Missed a session? Fine. Missed only Leg Day five weeks in a row? The training calendar can see you. It's colour-coded. Yellow is Legs. There should be some yellow."},
+ {id:"f15",cat:"Just for fun",title:"Arms are not a personality",body:"Big arms are fun. But the best athletes are strong everywhere: legs, back, core and grip. Build the whole machine, not just the bits that show in a T-shirt."},
+ // ---- Speed & agility
+ {id:"s1",cat:"Speed & agility",title:"Why speed work matters",body:"Strength makes you powerful; speed work teaches your body to use that power quickly. Once a week, add 10–15 minutes of sprints, jumps or agility drills, done while you're fresh, before weights.",again:1},
+ {id:"s2",cat:"Speed & agility",title:"10 m acceleration sprints",body:"Most of basketball is short bursts. Do 6–8 sprints of 10 m from a standing start, walking back to recover fully each time. Quality over quantity: every rep should be fast."},
+ {id:"s3",cat:"Speed & agility",title:"The 5-10-5 shuttle",body:"Start in the middle, sprint 5 m right and touch the line, 10 m left and touch, then 5 m back through the middle. It trains stopping and changing direction. Time yourself and try to beat it each month."},
+ {id:"s4",cat:"Speed & agility",title:"Defensive slides",body:"Stay low, chest up, feet wide and don't cross them. Slide 5 m each way for 20 seconds, rest 40 s, repeat 6 times. Builds the hip and leg endurance that keeps you in front of your opponent."},
+ {id:"s5",cat:"Speed & agility",title:"Skipping rope",body:"5 minutes of skipping improves foot speed, ankle stiffness and coordination, and it's a great warm-up. Start with 30 s on, 30 s off. Work up to double-unders if you're keen."},
+ {id:"s6",cat:"Speed & agility",title:"Broad jumps",body:"Swing your arms and jump forward as far as you can, landing softly on both feet. 4 sets of 4, with full rest. Great for explosive hip power. Measure your best jump and track it."},
+ {id:"s7",cat:"Speed & agility",title:"A-skips",body:"Skip forward driving one knee up to hip height while the other foot strikes under your hips. A sprint coach's favourite for teaching good running mechanics. 3 × 20 m in your warm-up."},
+ {id:"s8",cat:"Speed & agility",title:"Hill sprints",body:"Find a short, steep hill and sprint up for 8–10 seconds, walking back down. The hill forces good sprint posture and builds power with less impact on your legs. 6–8 reps is plenty."},
+ {id:"s9",cat:"Speed & agility",title:"Reaction drills",body:"Have a friend point left or right (or drop a tennis ball) and react as fast as you can. Games are about reacting, not just running in straight lines."},
+ {id:"s10",cat:"Speed & agility",title:"Rest fully between sprints",body:"Speed work isn't cardio. Rest 60–90 seconds between short sprints so each one is at top speed. If you're puffing hard, you're training fitness, not speed."},
+ {id:"s11",cat:"Speed & agility",title:"Pogo hops",body:"Small, fast bounces on the balls of your feet with stiff ankles, like a pogo stick. 3 × 20. Builds the springy ankles that make you quicker off the ground."},
+ {id:"s12",cat:"Speed & agility",title:"Lateral shuffle to sprint",body:"Shuffle sideways for 3 steps, then turn and sprint 10 m. Mimics recovering on defence and breaking on a fast break. 6 reps each direction."},
+ // ---- Quotes
+ {id:"q11",cat:"Quote",title:"Discipline is freedom",quote:"Only the disciplined ones in life are free.",by:"Eliud Kipchoge, marathon world record holder",body:"Kipchoge ran the first sub-2-hour marathon by doing simple things consistently for years. Turning up three times a week is your version of that."},
+ {id:"q12",cat:"Quote",title:"Focus on what you can do",quote:"Don't let what you cannot do interfere with what you can do.",by:"John Wooden, basketball coach",body:"Sore shoulder? Train legs. No gym this week? Do a run or push-ups at home. There's always something you can do."},
+ {id:"q13",cat:"Quote",title:"Pressure is an opportunity",quote:"Everything negative – pressure, challenges – is all an opportunity for me to rise.",by:"Kobe Bryant",body:"A tough PB Week or a heavy set you're nervous about is exactly where you get better."},
+ {id:"q14",cat:"Quote",title:"How you bounce back",quote:"I really think a champion is defined not by their wins but by how they can recover when they fall.",by:"Serena Williams",body:"Missed sessions, bad weeks and failed lifts happen to everyone. Coming back is what counts."},
+ {id:"q15",cat:"Quote",title:"Dream big",quote:"You can't put a limit on anything. The more you dream, the farther you get.",by:"Michael Phelps",body:"Set a big goal for the year, then break it into small steps you can see on your graphs."},
+ {id:"q16",cat:"Quote",title:"Practice like it matters",quote:"Don't practice until you get it right. Practice until you can't get it wrong.",by:"Common coaching saying",body:"Good technique on every rep, not just the first few, is what makes a lift safe when the weight gets heavy."},
+ // ---- Nutrition
+ {id:"n13",cat:"Nutrition",title:"Food first, not powders",body:"Growing athletes can get all the protein they need from normal food: meat, fish, eggs, milk, yoghurt, beans and nuts. Supplements are expensive and not needed. Spend the money on good groceries."},
+ {id:"n14",cat:"Nutrition",title:"Pre-training snack",body:"Training on an empty stomach drains strength. 1–2 hours before the gym, have something easy like a banana and toast, yoghurt and muesli, or a sandwich."},
+ {id:"n15",cat:"Nutrition",title:"Calcium for strong bones",body:"Teenage years are when you build most of your bone strength for life. Milk, yoghurt, cheese and calcium-fortified alternatives help. Lifting weights helps too."},
+ {id:"n16",cat:"Nutrition",title:"Iron for energy",body:"Low iron makes you tired and flat. Red meat, chicken, eggs, beans, spinach and fortified cereals are good sources. Vitamin C (fruit, capsicum) helps you absorb iron from plants."},
+ {id:"n17",cat:"Nutrition",title:"Don't skip meals",body:"Skipping breakfast or lunch makes it much harder to eat enough to grow and recover. Regular meals and snacks keep energy steady for school, sport and the gym."},
+ {id:"n18",cat:"Nutrition",title:"Kūmara power",body:"Kūmara, potatoes and rice are cheap, filling carbs that refuel your muscles. A big serve with dinner after a hard day is ideal."},
+ {id:"n19",cat:"Nutrition",title:"Sports drinks: only sometimes",body:"For a gym session under an hour, water is all you need. Sports drinks are for long, sweaty sessions or tournaments. Otherwise they're just expensive lolly water."},
+ {id:"n20",cat:"Nutrition",title:"Hot day hydration",body:"On hot or humid days you sweat a lot more. Drink before you're thirsty, and add a pinch of salt or a salty snack after long sessions to replace what you've lost."},
+ {id:"n21",cat:"Nutrition",title:"Learn three meals",body:"Learn to cook three simple meals: say a stir-fry, spag bol and an omelette. It's one of the most useful fitness skills there is, and future flatmates will love you."},
+ {id:"n22",cat:"Nutrition",title:"Evening protein",body:"A protein snack before bed, like milk, yoghurt or a cheese toastie, gives your muscles building blocks for overnight recovery."},
+ {id:"n23",cat:"Nutrition",title:"Fruit is fast fuel",body:"Bananas, apples, oranges and grapes are perfect quick energy before training or sport, and they come with vitamins, fibre and water."},
+ {id:"n24",cat:"Nutrition",title:"Eggs: the cheap hero",body:"Eggs are one of the best-value proteins you can buy, and they cook in minutes: scrambled, boiled or in an omelette with veggies."},
+ // ---- Long and Strong
+ {id:"m11",cat:"Long and Strong",title:"World's greatest stretch",body:"Lunge forward, put both hands inside your front foot, rotate your top arm to the ceiling, then reach back down. Hits hips, hamstrings and upper back in one move. 5 each side before any session."},
+ {id:"m12",cat:"Long and Strong",title:"Foam rolling",body:"Rolling your quads, calves and upper back for a minute each can ease tightness before or after training. Go slowly and pause on tight spots. It should feel like a firm massage, not torture."},
+ {id:"m13",cat:"Long and Strong",title:"Band pull-aparts",body:"Hold a resistance band at shoulder height and pull it apart until it touches your chest. 2 × 15 between pressing sets keeps shoulders healthy and posture tall."},
+ {id:"m14",cat:"Long and Strong",title:"Pigeon stretch",body:"From a push-up position, bring one knee forward behind your hand and lower your hips. Opens up tight glutes and hips after Legs day. Hold 45 s each side."},
+ {id:"m15",cat:"Long and Strong",title:"Cat–cow",body:"On hands and knees, slowly arch your back up like a cat, then drop your belly and lift your head. 10 slow reps loosen a stiff spine before training."},
+ {id:"m16",cat:"Long and Strong",title:"Calf stretch on a step",body:"Stand on a step with your heels hanging off and let them drop slowly. Hold 30 s straight-legged, then 30 s with knees bent. Tight calves can lead to sore shins and Achilles."},
+ {id:"m17",cat:"Long and Strong",title:"Breathe into the stretch",body:"Holding your breath makes muscles tense. Take slow breaths and let the stretch deepen a little each time you breathe out."},
+ {id:"m18",cat:"Long and Strong",title:"Wrist warm-up",body:"Pressing and push-ups load the wrists. Before Push day, do 10 wrist circles each way and gently rock forward and back on your palms."},
+ {id:"m19",cat:"Long and Strong",title:"Try a yoga session",body:"One 20–30 minute yoga video a week is a great way to work on flexibility, balance and breathing. Plenty of free 'yoga for athletes' sessions are online. Log it under Other."},
+ {id:"m20",cat:"Long and Strong",title:"Long and strong, again",body:"Tight muscles can't produce their full power through a full range. Flexible, strong muscles move better and get injured less. 10 minutes of stretching after training is the cheapest performance boost there is.",again:1},
+ // ---- Try this exercise
+ {id:"e14",cat:"Try this exercise",title:"Single-leg RDL",body:"Stand on one leg holding a dumbbell and hinge forward until your body is level, then stand back up. Builds hamstrings, glutes and balance, which is great for jumping and landing."},
+ {id:"e15",cat:"Try this exercise",title:"Reverse lunges",body:"Step backwards into a lunge instead of forwards. Easier on the knees and great for single-leg strength. Try 3 × 10 each leg on Legs day."},
+ {id:"e16",cat:"Try this exercise",title:"Chest-supported row",body:"Lie face-down on an incline bench and row dumbbells up. Your lower back gets a rest and your upper back has to do all the work."},
+ {id:"e17",cat:"Try this exercise",title:"Cable crossover",body:"Set the cables high and bring the handles together in front of your hips with a slight bend in the elbows. A great finisher for the chest after pressing."},
+ {id:"e18",cat:"Try this exercise",title:"Dead bug",body:"Lie on your back with arms up and knees bent at 90°. Slowly lower the opposite arm and leg while keeping your lower back pressed to the floor. Teaches the core to stay solid while limbs move."},
+ {id:"e19",cat:"Try this exercise",title:"Hollow body hold",body:"Lie on your back, lift your shoulders and legs a little off the floor and press your lower back down. Hold for 20–30 s. A gymnast's secret to a strong core."},
+ {id:"e20",cat:"Try this exercise",title:"Side plank",body:"Balance on one forearm and the side of your foot, body in a straight line. 3 × 30 s each side builds the side core muscles that protect your back when you twist and land."},
+ {id:"e21",cat:"Try this exercise",title:"Cable crunch",body:"Kneel facing a high cable with a rope, and crunch down by curling your ribs towards your hips. A good way to add weight to ab training alongside your decline crunches."},
+ {id:"e22",cat:"Try this exercise",title:"Seated dumbbell Z-press",body:"Sit on the floor with legs straight out and press dumbbells overhead. No leaning back allowed, so your core and shoulders do all the work."},
+ {id:"e23",cat:"Try this exercise",title:"Step-ups",body:"Step onto a box or bench with one foot and drive up until standing tall. Keep the work in the front leg. Great single-leg strength for jumping."},
+ {id:"e24",cat:"Try this exercise",title:"Close-grip push-ups",body:"Hands just inside shoulder width, elbows tucked. Targets triceps and chest, and works anywhere: no gym needed."},
+ {id:"e25",cat:"Try this exercise",title:"Rear delt fly",body:"Bend forward and raise light dumbbells out to the side. The back of the shoulder is often weak compared to the front, and this balances it out."},
+ // ---- Dynamic work
+ {id:"d11",cat:"Dynamic work",title:"Rotational med ball throw",body:"Stand side-on to a wall and throw a medicine ball into it by rotating hard through your hips. Builds rotational power for passing and shooting. 3 × 6 each side."},
+ {id:"d12",cat:"Dynamic work",title:"Overhead med ball throw",body:"Hold a medicine ball overhead, step forward and throw it as far as you can. Great full-body power, especially if you play a throwing sport."},
+ {id:"d13",cat:"Dynamic work",title:"Skater jumps",body:"Leap sideways from one leg to the other, landing softly and holding for a second. Builds the lateral power and balance used in cutting and defence."},
+ {id:"d14",cat:"Dynamic work",title:"Jump squats",body:"Bodyweight squat, then explode up as high as you can and land softly. 3 × 6 before Legs day wakes up your fast-twitch muscles."},
+ {id:"d15",cat:"Dynamic work",title:"Plyo push-ups",body:"Push up hard enough that your hands leave the floor, then land softly. Upper-body power for boxing out and fending off. Start with 3 × 5."},
+ {id:"d16",cat:"Dynamic work",title:"Kettlebell goblet carry",body:"Hold a kettlebell at your chest and walk 30 m with tall posture. Your core works hard to stay upright. A great finisher."},
+ // ---- Training tips
+ {id:"t24",cat:"Training tip",title:"Double progression",body:"Pick a rep range like 8–12. When you hit 12 reps on every set, add a little weight and drop back to 8. Repeat. It's the simplest way to keep progressing."},
+ {id:"t25",cat:"Training tip",title:"Film your lifts",body:"Ask a mate to film a set from the side now and then. You'll spot things you can't feel, like a rounded back on RDLs or bouncing the bar on bench."},
+ {id:"t26",cat:"Training tip",title:"Always use a spotter for heavy bench",body:"Never go near your max on bench press without a spotter, or use the safety bars in a rack. It takes ten seconds to ask, and it's what experienced lifters do."},
+ {id:"t27",cat:"Training tip",title:"One side at a time",body:"Single-arm and single-leg exercises (split squats, one-arm rows) expose and fix strength differences between sides, like your weaker right arm."},
+ {id:"t28",cat:"Training tip",title:"How many sets?",body:"Around 10–20 hard sets per muscle group per week is the sweet spot for most people. More isn't always better if you can't recover from it."},
+ {id:"t29",cat:"Training tip",title:"Ramp up your warm-up",body:"Before your heaviest lift, try: empty bar × 10, 50% × 8, 70% × 5, 85% × 2, then your working sets. Your joints and nervous system will be ready."},
+ {id:"t30",cat:"Training tip",title:"Breathe out on the effort",body:"Breathe in on the easy part (lowering) and out on the hard part (lifting). For very heavy sets, brace and hold for the rep, then breathe at the top."},
+ {id:"t31",cat:"Training tip",title:"Train your grip",body:"A weak grip limits rows, pulldowns and deadlifts. Farmer's carries, dead hangs and thick-handled holds build it up quickly."},
+ {id:"t32",cat:"Training tip",title:"Same exercise, small tweaks",body:"Changing grip width, foot position or the bench angle shifts the work to slightly different muscles. Small tweaks can freshen up a program without starting over."},
+ {id:"t33",cat:"Training tip",title:"Short on time?",body:"Got 30 minutes? Do just the first two exercises of your normal day with full effort. A short session beats no session every time."},
+ // ---- Recovery & mindset
+ {id:"r1",cat:"Recovery",title:"Screens off before bed",body:"Phone light and scrolling keep your brain awake. Try putting it away 30 minutes before bed. Better sleep means better recovery and more energy in the gym."},
+ {id:"r2",cat:"Recovery",title:"Soreness vs pain",body:"Dull, achy muscles a day or two after training is normal. Sharp, stabbing or joint pain is not. If something hurts in a sharp way, stop and get it checked by a physio or doctor."},
+ {id:"r3",cat:"Recovery",title:"Exam weeks",body:"During exams, stress and late nights cut recovery. It's fine to train lighter or less often. Even short sessions help focus and mood."},
+ {id:"r4",cat:"Recovery",title:"Active recovery",body:"The day after a hard session, an easy walk, swim or bike ride gets blood flowing and helps soreness ease faster than doing nothing."},
+ {id:"r5",cat:"Recovery",title:"Listen to your body",body:"Feeling flat, sore everywhere and unmotivated for several sessions in a row is a sign to back off for a few days. Your energy ratings will show the pattern."},
+ {id:"r6",cat:"Recovery",title:"Cold showers?",body:"Ice baths and cold showers can make you feel fresh, but straight after weights they may slightly reduce muscle growth. Save them for tournaments or game days."},
+ {id:"k1",cat:"Mindset",title:"Celebrate small wins",body:"An extra rep, 2.5 kg more, or a session you almost skipped: they all count. Big results are just lots of small wins added together."},
+ {id:"k2",cat:"Mindset",title:"Set a goal for PB Week",body:"Before each PB Week, pick one number you want to beat, like one more pull-up or 2.5 kg on bench. A clear target makes training more focused."},
+ {id:"k3",cat:"Mindset",title:"Music matters",body:"Studies show upbeat music can make hard training feel easier. Build a gym playlist for your heaviest sets."},
+ {id:"k4",cat:"Mindset",title:"Train with a mate",body:"A training partner keeps you turning up, can spot you on heavy sets and makes sessions more fun. Healthy competition never hurts either."},
+ {id:"k5",cat:"Mindset",title:"Your body, your timeline",body:"Everyone grows and develops at different rates, especially in the teenage years. Compare yourself only with your own graphs."},
+ {id:"k6",cat:"Mindset",title:"Be patient",body:"Real muscle growth takes months, not weeks. Look back at your graphs from three months ago: that's where progress shows."},
+ {id:"k7",cat:"Mindset",title:"Have fun with it",body:"The best program is the one you enjoy enough to keep doing. Try new exercises, play sport, mix it up. Fitness is for life, not just for this term."}
 ];
 const TIP_BY_ID = Object.fromEntries(TIPS.map(t=>[t.id,t]));
 /* Build a mixed sequence (round-robin by category) then slot repeats in later */
 const TIP_SEQ = (()=>{
+  // Spread every category evenly through the deck: each tip gets a position (i+0.5)/n within its category
   const cats={}; TIPS.forEach(t=>{(cats[t.cat]=cats[t.cat]||[]).push(t.id)});
-  const order=["Long and Strong","Quote","Nutrition","Training to failure","Dynamic work","Try this exercise","Training tip","Recovery","Mindset"];
-  const q=order.map(c=>(cats[c]||[]).slice()); const seq=[];
-  while(q.some(a=>a.length)) q.forEach(a=>{ if(a.length) seq.push(a.shift()); });
+  const order=Object.keys(cats), items=[];
+  order.forEach((c,ci)=>cats[c].forEach((id,i)=>items.push({id,k:(i+0.5)/cats[c].length+ci*1e-4})));
+  const seq=items.sort((x,y)=>x.k-y.k).map(x=>x.id);
+  seq.splice(seq.indexOf("m1"),1); seq.unshift("m1");
   const repeats=[]; TIPS.forEach(t=>{for(let k=1;k<=(t.again||0);k++) repeats.push({id:t.id,k})});
-  // place repeat k of each item roughly k * (len/(n+1)) positions after its first appearance
   repeats.sort((a,b)=>a.k-b.k);
-  repeats.forEach((r,i)=>{
-    const first=seq.indexOf(r.id); const gap=Math.round(seq.length/((TIP_BY_ID[r.id].again||1)+1));
-    let pos=Math.min(seq.length, first + gap*r.k + (i%5)); seq.splice(pos,0,r.id);
-  });
+  repeats.forEach((r,i)=>{ const first=seq.indexOf(r.id), gap=Math.round(seq.length/((TIP_BY_ID[r.id].again||1)+1));
+    seq.splice(Math.min(seq.length, first+gap*r.k+(i%5)),0,r.id); });
   return seq;
 })();
 
@@ -951,7 +1056,7 @@ function renderTrack(){
     <div class="grid2">
       <div class="card"><div class="row" style="justify-content:space-between;margin-bottom:10px"><h3 style="margin:0">Recent sessions</h3><div class="row" style="gap:6px"><button type="button" class="btn sm" id="t-csv-w">Download workouts (CSV)</button><button type="button" class="btn sm" id="t-csv-m">Download measurements (CSV)</button></div></div><div class="hist">${ss.length?ss.slice(0,histLimit).map(histRow).join(""):`<p class="hint">Nothing logged yet. Head to Workout Input to add the first session.</p>`}</div>
         ${ss.length>histLimit?`<div style="margin-top:10px"><button type="button" class="btn sm" id="t-more">Show more</button></div>`:""}</div>
-      <div class="card"><h3>Recent tips</h3><div class="tiplist">${seen.length?seen.map(h=>{const t=TIP_BY_ID[h.id];return t?`<div class="tipmini"><span class="tag">${esc(t.cat)} · ${fmtShort(h.date)}</span><b>${esc(t.title)}</b>${esc(t.quote?`“${t.quote}” ${t.by}`:t.body)}</div>`:""}).join(""):`<p class="hint">Tips pop up every 2–3 days when the log opens. They'll be listed here once read.</p>`}</div></div>
+      <div class="card"><h3>Recent tips</h3><div class="tiplist">${seen.length?seen.map(h=>{const t=TIP_BY_ID[h.id];return t?`<div class="tipmini"><span class="tag">${esc(t.cat)} · ${fmtShort(h.date)}</span><b>${esc(t.title)}</b>${esc(t.quote?`“${t.quote}” ${t.by}`:t.body)}</div>`:""}).join(""):`<p class="hint">A tip pops up the first time you open the log each day. They'll be listed here once read.</p>`}</div></div>
     </div>
     <div class="card"><h3>Backup</h3>
       <p class="hint">Everything is saved on this device only. Download a backup every few weeks and keep it in Google Drive or iCloud. Use Restore on a new phone, or if the browser data is ever cleared. Restoring adds missing entries and never deletes anything.</p>
@@ -1138,6 +1243,14 @@ function openCoach(n){
       bt.onclick=async()=>{ if(!cb.checked) return; close(); const p=S.popups;
         await savePopups({...p,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,coachLog:{...(p.coachLog||{}),[n.key]:todayStr()}}); renderAll(); }; }});
 }
+/* Re-open the most recent tip at any time (no tick needed, nothing saved) */
+function openTodaysTip(){
+  const h=(S.popups.history||[]); const t=h.length?TIP_BY_ID[h[h.length-1].id]:TIP_BY_ID[TIP_SEQ[(S.popups.tipIdx||0)%TIP_SEQ.length]];
+  if(!t) return;
+  openModal({tag:t.cat,title:t.title,body:(t.quote?`<blockquote>“${esc(t.quote)}”</blockquote><cite>${esc(t.by)}</cite>`:"")+`<p>${esc(t.body)}</p>`+(t.points?`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${t.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
+    `<div class="mf"><span class="hint">A new tip pops up the first time you open the log each day.</span><button type="button" class="btn primary" id="tt-close">Close</button></div>`,
+    onMount:(root,close)=>{$("#tt-close",root).onclick=close}});
+}
 function openTip(tip,idx,forced){
   const body = (tip.quote?`<blockquote>“${esc(tip.quote)}”</blockquote><cite>${esc(tip.by)}</cite>`:"")+`<p>${esc(tip.body)}</p>`+(tip.points?`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${tip.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
     `<div class="mf"><label class="readbox"><input type="checkbox" id="tip-read">I have read this</label><button type="button" class="btn primary" id="tip-close" disabled>Close</button></div>`;
@@ -1149,14 +1262,15 @@ function openTip(tip,idx,forced){
       await savePopups(np); renderAll(); };
   }});
 }
-let popupsRan=false;
+let popupDay=null;
 function runPopups(){
-  if(popupsRan) return; popupsRan=true;
+  // Runs on load and whenever the app comes back to the screen; acts once per calendar day
+  const today=todayStr(); if(popupDay===today||$("#modal-root").innerHTML) return; popupDay=today;
   if(!S.profile){openSetup();return}
   const pi=pbInfo(); if(pi&&pi.live&&S.popups.pbAck!==pi.cycle){openPbWeek(pi);return}
   if(S.popups.nextTip&&TIP_BY_ID[S.popups.nextTip]){ openTip(TIP_BY_ID[S.popups.nextTip],S.popups.tipIdx||0,true); return; }
-  const p=S.popups, gap=(p.tipCount||0)%2===0?2:3; // alternating 2- and 3-day gaps ≈ 2–3 pop-ups a week
-  if(!p.lastTip||daysBetween(p.lastTip,todayStr())>=gap){
+  const p=S.popups; // one pop-up a day: the first time the site is opened each day
+  if(p.lastTip!==today){
     // A coaching note about a real imbalance takes the slot (each one at most every 14 days); otherwise the next tip in the deck
     const log=p.coachLog||{}, n=coachNotes().find(x=>!log[x.key]||daysBetween(log[x.key],todayStr())>=14);
     if(n){ openCoach(n); return; }
@@ -1176,6 +1290,9 @@ let rq=false;
 function renderAll(){ if(rq) return; rq=true; requestAnimationFrame(()=>{rq=false; renderBanner(); if(view==="track") renderTrack(); }); }
 $("#tab-input").onclick=()=>setView("input"); $("#tab-track").onclick=()=>setView("track");
 $("#b-edit").onclick=openSetup;
+$("#b-tip").onclick=openTodaysTip;
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&S.ready) runPopups(); });
+window.addEventListener("pageshow",()=>{ if(S.ready) runPopups(); });
 bindInput(); bindTrack(); renderInput(); setView(view); updateNote();
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{if(view==="track")drawCharts()});
 new MutationObserver(()=>{if(view==="track")drawCharts()}).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
