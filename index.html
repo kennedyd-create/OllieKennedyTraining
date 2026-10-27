@@ -618,7 +618,7 @@ const F = { type:null, split:"push", sub:"normal", ex:{}, extras:{push:[],pull:[
             date:todayStr(), time:"" };
 function nowTime(){const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
 F.time=nowTime(); F.gym={min:"",intensity:null}; F.customOpen=false; F.ate=null; F.protein=null;
-function exState(name){ if(!F.ex[name]) F.ex[name]={inc:true,n:3,copy:false,sets:[0,1,2].map(()=>({w:"",r:"",f:false}))}; return F.ex[name]; }
+function exState(name){ if(!F.ex[name]) F.ex[name]={inc:true,n:2,copy:false,sets:[0,1].map(()=>({w:"",r:"",f:false}))}; return F.ex[name]; }
 function resetForm(){ F.editId=null; F.editCreated=null; F.energy=null; F.sleep=null; F.ate=null; F.protein=null; F.gym={min:"",intensity:null}; F.customOpen=false; F.ex={}; F.extras={push:[],pull:[],legs:[]}; F.cardio={act:F.cardio.act,km:"",min:"",intensity:null}; F.other={act:"",min:"",intensity:null}; F.date=todayStr(); F.time=nowTime(); }
 
 function intensityPicker(cur,key){
@@ -827,7 +827,7 @@ function loadSession(s){
   F.energy=s.energy??null; F.sleep=s.sleep??null; F.ate=s.ate??null; F.protein=s.protein??null;
   F.gym={min:s.minutes?String(s.minutes):"",intensity:s.intensity??null};
   if(s.type==="gym"){ F.split=s.split; F.sub="normal";
-    EXERCISES[s.split].normal.forEach(n=>{F.ex[n]={inc:false,n:3,copy:false,sets:[0,1,2].map(()=>({w:"",r:"",f:false}))}});
+    EXERCISES[s.split].normal.forEach(n=>{F.ex[n]={inc:false,n:2,copy:false,sets:[0,1].map(()=>({w:"",r:"",f:false}))}});
     s.exercises.forEach(e=>{ if(!EXERCISES[s.split].normal.includes(e.name)) F.extras[s.split].push(e.name);
       F.ex[e.name]={inc:true,n:e.sets.length,copy:false,sets:e.sets.map(x=>({w:String(x.w??""),r:String(x.r??""),f:!!x.f}))}; }); }
   else if(s.type==="cardio"){ F.cardio={act:s.cardio.act,km:s.cardio.km!=null?String(s.cardio.km):"",min:String(s.cardio.min??""),intensity:s.cardio.intensity??null}; }
