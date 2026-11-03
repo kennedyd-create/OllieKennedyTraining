@@ -31,7 +31,7 @@
   --font:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
   --pop:#b42318; --pop-2:#8f1c13; --pop-tag:#ffd7a3;
-  --combo:#7c3aed; --free:#0e8f9a;
+  --combo:#7c3aed; --free:#0e8f9a; --bw:#d9467a;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -43,7 +43,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf;
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#080e1c; --surface:#111a2e; --surface-2:#16223b; --surface-3:#1d2b49;
@@ -54,7 +54,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf;
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6;
   color-scheme:dark}
 *{box-sizing:border-box}
 img{max-width:100%}
@@ -128,7 +128,7 @@ input[type=number]{font-family:var(--mono)}
 .seg button{padding:9px 16px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:800;cursor:pointer;font-size:14px}
 .seg button[aria-pressed="true"]{background:var(--c,var(--navy));border-color:var(--c,var(--navy));color:#fff}
 .seg.small button{padding:6px 13px;font-size:13px}
-.split-push{--c:var(--push)}.split-pull{--c:var(--pull)}.split-legs{--c:var(--legs)}.split-pushpull{--c:var(--combo)}.split-free{--c:var(--free)}.c-cardio{--c:var(--cardio)}.c-other{--c:var(--other)}
+.split-push{--c:var(--push)}.split-pull{--c:var(--pull)}.split-legs{--c:var(--legs)}.split-pushpull{--c:var(--combo)}.chip.bw,.ex.bw{--c:var(--bw)}.split-free{--c:var(--free)}.c-cardio{--c:var(--cardio)}.c-other{--c:var(--other)}
 :root .split-legs[aria-pressed="true"]{color:#1f1600}
 
 /* exercise cards */
@@ -137,6 +137,9 @@ input[type=number]{font-family:var(--mono)}
 .ex.off{opacity:.55}
 .ex-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
 .ex-name{font-weight:800;font-size:15.5px}
+.bwtag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--bw);color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:2px}
+.chip.bw{border-color:var(--bw)}
+.chip.bw:not([aria-pressed="true"]){color:var(--bw)}
 .ex-last{font-size:11.5px;color:var(--ink-faint);font-family:var(--mono)}
 .ex-ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:10px 0 8px;font-size:13px}
 .stepper{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface)}
@@ -270,14 +273,25 @@ input[type=number]{font-family:var(--mono)}
    ========================================================= */
 const EXERCISES = {
   push:{ normal:["Incline Dumbbell Press","Bench Press","Tricep Pushdowns","Shoulder Press","Cable Lateral Raises"],
-         other:["Flat Dumbbell Press","Decline Bench Press","Machine Chest Press","Cable Chest Fly","Pec Deck","Dips","Push-Ups","Close-Grip Bench Press","Arnold Press","Front Raises","Dumbbell Lateral Raises","Overhead Tricep Extension","Skull Crushers","Landmine Press"] },
+         other:["Flat Dumbbell Press","Decline Bench Press","Machine Chest Press","Cable Chest Fly","Pec Deck","Close-Grip Bench Press","Arnold Press","Front Raises","Dumbbell Lateral Raises","Overhead Tricep Extension","Skull Crushers","Landmine Press",
+           "Push-Ups","Tricep Dips","Dips","Diamond Push-Ups","Wide Push-Ups","Decline Push-Ups","Pike Push-Ups","Plyo Push-Ups"] },
   pull:{ normal:["Lat Pulldown","Wide Grip Row","Close Grip Row","Bicep Curl","Hammer Curl"],
-         other:["Pull-Ups","Chin-Ups","Barbell Row","Single-Arm Dumbbell Row","T-Bar Row","Landmine Row","Face Pulls","Straight-Arm Pulldown","Rear Delt Fly","Preacher Curl","Incline Dumbbell Curl","Cable Curl","Shrugs","Deadlift"] },
+         other:["Barbell Row","Single-Arm Dumbbell Row","T-Bar Row","Landmine Row","Face Pulls","Straight-Arm Pulldown","Rear Delt Fly","Preacher Curl","Incline Dumbbell Curl","Cable Curl","Shrugs","Deadlift",
+           "Pull-Ups","Chin-Ups","Negative Pull-Ups","Inverted Rows","Dead Hang","Superman Hold"] },
   legs:{ normal:["Bulgarian Split Squats","Romanian Deadlift","Calf Raises","Decline Ab Crunches"],
-         other:["Back Squat","Front Squat","Goblet Squat","Landmine Squat","Leg Press","Leg Extension","Hamstring Curl","Walking Lunges","Step-Ups","Hip Thrust","Seated Calf Raise","Kettlebell Swings","Turkish Get-Up","Hanging Leg Raises","Cable Woodchoppers","Plank"] }
+         other:["Back Squat","Front Squat","Goblet Squat","Landmine Squat","Leg Press","Leg Extension","Hamstring Curl","Walking Lunges","Step-Ups","Hip Thrust","Seated Calf Raise","Kettlebell Swings","Turkish Get-Up","Cable Woodchoppers",
+           "Bodyweight Squats","Jump Squats","Reverse Lunges","Glute Bridges","Single-Leg Calf Raises","Wall Sit","Box Jumps","Burpees","Mountain Climbers",
+           "Hanging Leg Raises","Plank","Side Plank","Hollow Body Hold","Dead Bug","Sit-Ups"] }
 };
 const SPLITS = {push:"Push",pull:"Pull",legs:"Legs",pushpull:"Push/Pull",free:"Free Session"};
 const BASE_SPLITS=["push","pull","legs"];
+/* Bodyweight exercises (own colour; weight box = extra kg, blank = bodyweight). Timed holds log seconds instead of reps. */
+const BODYWEIGHT=new Set(["Push-Ups","Tricep Dips","Dips","Diamond Push-Ups","Wide Push-Ups","Decline Push-Ups","Pike Push-Ups","Plyo Push-Ups","Close-Grip Push-Ups",
+  "Pull-Ups","Chin-Ups","Negative Pull-Ups","Inverted Rows","Dead Hang","Superman Hold",
+  "Bodyweight Squats","Jump Squats","Reverse Lunges","Glute Bridges","Single-Leg Calf Raises","Wall Sit","Box Jumps","Burpees","Mountain Climbers",
+  "Hanging Leg Raises","Plank","Side Plank","Hollow Body Hold","Dead Bug","Sit-Ups","Decline Ab Crunches"]);
+const TIMED=new Set(["Dead Hang","Superman Hold","Wall Sit","Plank","Side Plank","Hollow Body Hold"]);
+const isBW=n=>BODYWEIGHT.has(n), isTimed=n=>TIMED.has(n);
 const uniq=a=>[...new Set(a)];
 /* Push/Pull combo = both normal workouts + both libraries. Free Session = no set exercises; the whole library to pick from. */
 EXERCISES.pushpull={normal:[...EXERCISES.push.normal,...EXERCISES.pull.normal],other:uniq([...EXERCISES.push.other,...EXERCISES.pull.other])};
@@ -636,20 +650,20 @@ function exCard(name,split){
   const st=exState(name), last=lastSetsFor(name);
   const lastTxt = last ? "Last "+fmtShort(last.dt)+": "+last.e.sets.map(s=>`${s.w||0}×${s.r||0}${s.f?"F":""}`).join(" · ") : "No previous log";
   const ph = last ? topSet(last.e) : null;
-  const sid=slug(name);
-  return `<div class="ex split-${split} ${st.inc?"":"off"}" data-ex="${esc(name)}">
-    <div class="ex-head"><div><div class="ex-name">${esc(name)}</div><div class="ex-last">${esc(lastTxt)}</div></div>
+  const sid=slug(name), bw=isBW(name), tm=isTimed(name);
+  return `<div class="ex split-${split}${bw?" bw":""} ${st.inc?"":"off"}" data-ex="${esc(name)}">
+    <div class="ex-head"><div><div class="ex-name">${esc(name)}${bw?`<span class="bwtag">Bodyweight</span>`:""}</div><div class="ex-last">${esc(lastTxt)}</div></div>
       <label class="chk"><input type="checkbox" id="inc-${sid}" data-act="inc" ${st.inc?"checked":""}>Done</label></div>
     ${st.inc?`
     <div class="ex-ctrl">
       <span class="stepper" aria-label="Number of sets"><button type="button" data-act="minus" aria-label="Fewer sets">−</button><span>${st.n} set${st.n>1?"s":""}</span><button type="button" data-act="plus" aria-label="More sets">+</button></span>
       ${st.n>1?`<label class="chk"><input type="checkbox" id="copy-${sid}" data-act="copy" ${st.copy?"checked":""}>Copy set 1 to all</label>`:""}
     </div>
-    <div class="sethead"><span>Set</span><span>Weight kg</span><span>Reps</span><span>To failure</span></div>
+    <div class="sethead"><span>Set</span><span>${bw?"Added kg":"Weight kg"}</span><span>${tm?"Seconds":"Reps"}</span><span>To failure</span></div>
     <div class="sets">${st.sets.map((s,i)=>`<div class="set" data-i="${i}">
       <span class="sn">#${i+1}</span>
-      <input type="number" inputmode="decimal" step="0.5" min="0" id="w-${sid}-${i}" data-f="w" value="${esc(s.w)}" placeholder="${ph?ph.w||0:"kg"}" ${st.copy&&i>0?"readonly":""}>
-      <input type="number" inputmode="numeric" step="1" min="0" id="r-${sid}-${i}" data-f="r" value="${esc(s.r)}" placeholder="${ph?ph.r||"":"reps"}" ${st.copy&&i>0?"readonly":""}>
+      <input type="number" inputmode="decimal" step="0.5" min="0" id="w-${sid}-${i}" data-f="w" value="${esc(s.w)}" placeholder="${bw?(ph&&ph.w?ph.w:"BW"):(ph?ph.w||0:"kg")}" ${st.copy&&i>0?"readonly":""}>
+      <input type="number" inputmode="numeric" step="1" min="0" id="r-${sid}-${i}" data-f="r" value="${esc(s.r)}" placeholder="${ph?ph.r||"":tm?"secs":"reps"}" ${st.copy&&i>0?"readonly":""}>
       <label class="chk fail"><input type="checkbox" id="f-${sid}-${i}" data-f="f" ${s.f?"checked":""}>Failure</label>
     </div>`).join("")}</div>`:""}
   </div>`;
@@ -667,7 +681,7 @@ function renderInput(){
         ${sp==="free"?"":`<button type="button" aria-pressed="${F.sub==="normal"}" data-sub="normal" style="--c:var(--navy)">Normal workout</button>`}
         <button type="button" aria-pressed="${F.sub==="other"}" data-sub="other" style="--c:var(--navy)">${sp==="free"?"Your exercises":`Other ${SPLITS[sp].toLowerCase()} exercises`}${F.extras[sp].length?` (${F.extras[sp].length})`:""}</button>
       </div>
-      ${F.sub==="other"?`<div><h3>${sp==="free"?"Add exercises from the full library":`Add from the ${SPLITS[sp]} library`}</h3><div class="chips">${otherList(sp).map(n=>`<button type="button" class="chip split-${sp}" data-extra="${esc(n)}" aria-pressed="${F.extras[sp].includes(n)}">${F.extras[sp].includes(n)?"✓ ":"+ "}${esc(n)}</button>`).join("")}<button type="button" class="chip" data-custom="1" aria-pressed="${F.customOpen}">+ Other…</button></div>
+      ${F.sub==="other"?`<div><h3>${sp==="free"?"Add exercises from the full library":`Add from the ${SPLITS[sp]} library`}</h3><p class="hint" style="margin:-4px 0 8px"><span class="bwtag" style="margin:0 4px 0 0">Bodyweight</span> pink ones need no equipment.</p><div class="chips">${otherList(sp).map(n=>`<button type="button" class="chip split-${sp}${isBW(n)?" bw":""}" data-extra="${esc(n)}" aria-pressed="${F.extras[sp].includes(n)}">${F.extras[sp].includes(n)?"✓ ":"+ "}${esc(n)}</button>`).join("")}<button type="button" class="chip" data-custom="1" aria-pressed="${F.customOpen}">+ Other…</button></div>
         ${F.customOpen?`<div class="row" style="margin-top:10px"><label class="f" style="flex:1 1 220px">Exercise not in the list<input type="text" id="custom-ex" maxlength="40" placeholder="e.g. Cable Crossover" autocomplete="off"></label><button type="button" class="btn sm primary" id="custom-add">Add exercise</button></div><p class="err" id="custom-err" style="margin-top:6px"></p>`:""}</div>`:""}
       ${list.length?`<div class="exlist" id="exlist">${list.map(n=>exCard(n,sp)).join("")}</div>`:`<p class="hint">${sp==="free"?"Tap any exercise above to add it to this session. Use + Other… for anything not listed.":"Tap exercises above to add them to today's session."}</p>`}
       <div class="row" style="align-items:flex-end;gap:18px;border-top:1px solid var(--line);padding-top:14px">
@@ -1128,8 +1142,8 @@ function drawCharts(){
   else{ const pts=exPoints();
     const bw=pts.every(p=>!p.w), c=cssv("--pull");
     mk("c-ex",{data:{labels:pts.map(p=>fmtShort(p.d)),datasets:[
-      {type:"line",label:bw?"Best set (reps)":"Heaviest set (kg)",data:pts.map(p=>bw?p.r:p.w),borderColor:c,backgroundColor:c,tension:.3,pointRadius:4,yAxisID:"y"},
-      {type:"bar",label:bw?"Total reps":"Volume (kg)",data:pts.map(p=>bw?p.reps:p.vol),backgroundColor:cssv("--surface-3"),borderRadius:4,yAxisID:"y1"}]},
+      {type:"line",label:bw?(isTimed(trackEx)?"Longest hold (secs)":"Best set (reps)"):"Heaviest set (kg)",data:pts.map(p=>bw?p.r:p.w),borderColor:c,backgroundColor:c,tension:.3,pointRadius:4,yAxisID:"y"},
+      {type:"bar",label:bw?(isTimed(trackEx)?"Total seconds":"Total reps"):"Volume (kg)",data:pts.map(p=>bw?p.reps:p.vol),backgroundColor:cssv("--surface-3"),borderRadius:4,yAxisID:"y1"}]},
       options:base({plugins:{legend:{labels:{color:ink,usePointStyle:true}},tooltip:{callbacks:{afterLabel:ctx=>ctx.datasetIndex===0&&!bw?`× ${pts[ctx.dataIndex].r} reps`:""}}},scales:{x:sc({grid:{display:false}}),y:sc({position:"left"}),y1:sc({position:"right",grid:{display:false},beginAtZero:true})}})}); }
   // body charts
   const ci=sortedCheckins();
