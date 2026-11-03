@@ -67,6 +67,18 @@ button,input,select{font:inherit;color:inherit}
 
 /* ---------- Banner ---------- */
 .banner{background:var(--navy);color:var(--on-navy);position:relative;overflow:hidden}
+.libbtn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px 7px 9px;border-radius:999px;border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#e2bb66;font-weight:800;font-size:12px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+.libbtn:hover{background:rgba(255,255,255,.16)}
+@media (min-width:901px){.banner .wrap{position:relative}.libbtn{position:absolute;top:calc(18px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px))}}
+.libcats{display:flex;flex-wrap:wrap;gap:6px}
+.libcats button{padding:6px 11px;border-radius:999px;border:1.5px solid var(--line);background:var(--surface-2);font-weight:700;font-size:12.5px;cursor:pointer}
+.libcats button[aria-pressed="true"]{background:var(--pop);border-color:var(--pop);color:#fff}
+.liblist{display:grid;gap:8px}
+.liblist details{border:1px solid var(--line);border-radius:10px;background:var(--surface-2);padding:10px 12px}
+.liblist summary{cursor:pointer;font-weight:800;list-style-position:outside}
+.liblist summary .tag{margin-left:6px;font-size:10px}
+.liblist details[open] summary{margin-bottom:8px}
+.liblist .seen{color:var(--ok);font-weight:800;margin-left:4px}
 .banner::after{content:"";position:absolute;left:0;right:0;bottom:0;height:6px;
   background:linear-gradient(90deg,var(--push) 0 20%,var(--pull) 20% 40%,var(--legs) 40% 60%,var(--cardio) 60% 80%,#e8ecf3 80% 100%)}
 .banner .wrap{padding-block:calc(22px + env(safe-area-inset-top,0px)) 28px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px 28px;align-items:end}
@@ -240,7 +252,12 @@ input[type=number]{font-family:var(--mono)}
 <header class="banner">
   <div class="wrap">
     <div class="who">
-      <div class="eyebrow">Training log</div>
+      <div class="eyebrow" style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span>Training log</span>
+        <button type="button" class="libbtn" id="b-lib" aria-label="Open the tips library" title="Tips library">
+    <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1.1 2V17h5v-1.2c.1-.8.5-1.5 1.1-2A6 6 0 0 0 12 3z"/></svg>
+    <span>Tips</span>
+  </button>
+      </div>
       <h1>Ollie Kennedy</h1>
       <div class="meta">
         <span>Age <b id="b-age">—</b></span>
@@ -491,7 +508,47 @@ const TIPS = [
  {id:"k4",cat:"Mindset",title:"Train with a mate",body:"A training partner keeps you turning up, can spot you on heavy sets and makes sessions more fun. Healthy competition never hurts either."},
  {id:"k5",cat:"Mindset",title:"Your body, your timeline",body:"Everyone grows and develops at different rates, especially in the teenage years. Compare yourself only with your own graphs."},
  {id:"k6",cat:"Mindset",title:"Be patient",body:"Real muscle growth takes months, not weeks. Look back at your graphs from three months ago: that's where progress shows."},
- {id:"k7",cat:"Mindset",title:"Have fun with it",body:"The best program is the one you enjoy enough to keep doing. Try new exercises, play sport, mix it up. Fitness is for life, not just for this term."}
+ {id:"k7",cat:"Mindset",title:"Have fun with it",body:"The best program is the one you enjoy enough to keep doing. Try new exercises, play sport, mix it up. Fitness is for life, not just for this term."},
+ // ---- Mix it up (variety)
+ {id:"v1",cat:"Mix it up",title:"Same 5 exercises forever?",body:"Your body adapts to whatever you repeat. After 6–8 weeks of exactly the same exercises, progress usually slows. Swapping one or two exercises gives your muscles a new challenge while you keep the rest of the program the same.",again:1},
+ {id:"v2",cat:"Mix it up",title:"Overuse is real",body:"Doing the same movement, at the same angle, session after session puts stress on the same tendons and joints every time. That's how niggles like sore elbows and shoulders start. Rotating exercises spreads the load and keeps joints happy."},
+ {id:"v3",cat:"Mix it up",title:"Work the small muscles",body:"Machines and your favourite lifts mostly train the big 'show' muscles. Bodyweight and single-arm or single-leg exercises force the small stabilising muscles around your shoulders, hips and core to work, which makes you more solid and less injury-prone."},
+ {id:"v4",cat:"Mix it up",title:"Change one thing every 6 weeks",body:"You don't need a new program to keep it fresh. Every 6 weeks, swap one exercise on each day for one from the Other list. Keep your main lifts (like bench) so you can still track PBs."},
+ {id:"v5",cat:"Mix it up",title:"Different angles, more growth",body:"A muscle has fibres running in different directions. Flat, incline and decline pressing, or wide and close grips on rows, each hit them slightly differently. Variety means more of the muscle gets trained."},
+ {id:"v6",cat:"Mix it up",title:"Try a Free Session",body:"Feeling bored with your normal days? Pick Gym Workout → Free Session and build a workout from the library: maybe three exercises you've never logged. New movements keep training fun, and fun keeps you turning up."},
+ {id:"v7",cat:"Mix it up",title:"No gym? No problem",body:"Push-ups, inverted rows under a table, squats, lunges, glute bridges and a plank make a full workout at home or at the park. Log it as a Free Session so it still counts."},
+ {id:"v8",cat:"Mix it up",title:"The bodyweight finisher",body:"End a session with 3 rounds of: 10 push-ups, 15 bodyweight squats, 10 mountain climbers each leg and a 30-second plank. Rest 1 minute between rounds. Short, tough and great for fitness."},
+ {id:"v9",cat:"Mix it up",title:"Train for movement, not just muscles",body:"Sport needs you to jump, land, twist, push and pull in all directions. Mixing in bodyweight, single-leg and explosive exercises builds strength you can actually use on the court."},
+ {id:"v10",cat:"Mix it up",title:"Boredom is a warning sign",body:"If you're dreading the same session again, change something. Motivation matters as much as the program: the best workout is the one you'll actually do."},
+ // ---- Bodyweight how-tos
+ {id:"b1",cat:"Bodyweight",title:"Tricep dips on a bench",body:"Hands on the edge of a bench behind you, legs out in front. Lower until your elbows reach about 90°, then press back up. Keep your back close to the bench. Bend your knees to make it easier, or put your feet up on another bench to make it harder."},
+ {id:"b2",cat:"Bodyweight",title:"Diamond push-ups",body:"Hands close together under your chest with thumbs and index fingers touching to make a diamond. Much harder on the triceps than normal push-ups. Start on your knees if you need to."},
+ {id:"b3",cat:"Bodyweight",title:"Pike push-ups",body:"Start in a push-up, then walk your feet in so your hips point to the ceiling. Bend your elbows to lower your head towards the floor. A shoulder press using your own bodyweight, and great for shoulder strength."},
+ {id:"b4",cat:"Bodyweight",title:"Decline push-ups",body:"Feet up on a bench, hands on the floor. Raising your feet shifts more work to your upper chest and shoulders, and makes every rep harder."},
+ {id:"b5",cat:"Bodyweight",title:"Negative pull-ups",body:"The fastest way to raise your pull-up PB. Jump or step up so your chin is over the bar, then lower yourself as slowly as you can, aiming for 5 seconds. 3 sets of 4–5 at the start of Pull day."},
+ {id:"b6",cat:"Bodyweight",title:"Inverted rows",body:"Lie under a bar set at hip height (a Smith machine or rack works), grab it and pull your chest up to it with your body straight. The more upright you are, the easier it is. A great partner for pull-ups."},
+ {id:"b7",cat:"Bodyweight",title:"Superman hold",body:"Lie face-down and lift your arms, chest and legs off the floor, squeezing your glutes and back. Hold 20–30 seconds. Strengthens the lower back muscles that protect you during RDLs and rows."},
+ {id:"b8",cat:"Bodyweight",title:"Glute bridges",body:"Lie on your back with knees bent and push your hips up until your body is straight from knees to shoulders. Squeeze hard at the top for a second. Try them single-leg once two legs feel easy."},
+ {id:"b9",cat:"Bodyweight",title:"Wall sit",body:"Back against a wall, slide down until your thighs are level with the floor, and hold. Simple, brutal and great for quad endurance. Log it in seconds and try to beat your time."},
+ {id:"b10",cat:"Bodyweight",title:"Burpees",body:"Squat down, jump your feet back to a push-up, jump them back in, then leap up. Full-body conditioning with no equipment. Try 3 sets of 10 as a finisher, and keep the push-up part clean."},
+ {id:"b11",cat:"Bodyweight",title:"Mountain climbers",body:"In a push-up position, drive your knees towards your chest one at a time, fast. Core, shoulders and cardio all at once. 3 × 30 seconds."},
+ {id:"b12",cat:"Bodyweight",title:"Single-leg calf raises",body:"Stand on one foot on the edge of a step and rise all the way up, then lower until you feel a full stretch. Working one leg at a time is much harder than two-legged raises and fixes left-right differences."},
+ {id:"b13",cat:"Bodyweight",title:"Wide push-ups",body:"Hands wider than your shoulders puts more stretch and work on your chest. Mix wide, normal and diamond push-ups in one set for a burnout finisher."},
+ {id:"b14",cat:"Bodyweight",title:"Dead hang for grip and shoulders",body:"Simply hang from the pull-up bar with straight arms. It builds grip strength and stretches your lats and shoulders. Log it in seconds and work up to 60."},
+ {id:"b15",cat:"Bodyweight",title:"Bodyweight squats as a warm-up",body:"Before Legs day, do 2 sets of 15 slow bodyweight squats with a pause at the bottom. They warm up your knees, hips and ankles and grease your squat pattern."},
+ // ---- Away from the gym
+ {id:"h1",cat:"Away from the gym",title:"On holiday? Try this full-body circuit",body:"No equipment needed. Do each exercise back to back, rest 90 seconds, and repeat for 3–4 rounds:",points:["12 push-ups (knees if needed)","20 bodyweight squats","10 reverse lunges each leg","12 glute bridges","30-second plank","10 burpees"],again:1},
+ {id:"h2",cat:"Away from the gym",title:"The jog-and-stop workout",body:"Great for a park, the beach or around the bach. Jog easy for 5 minutes, then stop and do the exercises below. Repeat the jog-and-stop 4–5 times (about 35–40 minutes total):",points:["10 push-ups","15 squats","10 walking lunges each leg","20 mountain climbers","Then jog the next 5 minutes"],again:1},
+ {id:"h3",cat:"Away from the gym",title:"20-minute hotel room workout",body:"Set a timer for 20 minutes and do as many rounds as you can, with good form:",points:["10 diamond or normal push-ups","10 tricep dips off the bed or a chair","15 squats with a pause at the bottom","10 single-leg glute bridges each side","30-second wall sit","20-second side plank each side"]},
+ {id:"h4",cat:"Away from the gym",title:"Beach workout",body:"Sand makes everything harder, especially for your calves and ankles. Try:",points:["6 × 20 m sand sprints, walking back","3 × 15 push-ups","3 × 10 jump squats","3 × 10 m bear crawls","Finish with a swim to cool down"]},
+ {id:"h5",cat:"Away from the gym",title:"Playground pull workout",body:"Your Pull day still works away from the gym, at any playground or park with bars:",points:["Pull-ups or chin-ups on the monkey bars: 4 sets, stop 1–2 reps short of failure","Inverted rows on a low bar: 3 × 10–12","Dead hang: 3 × 30 seconds","Hanging knee raises: 3 × 10","Bench dips: 3 × 12"]},
+ {id:"h6",cat:"Away from the gym",title:"Find some stairs",body:"Stairs are a free leg and lung workout. Try this:",points:["Run up, walk down, × 8","Then 3 rounds of: 10 step-ups each leg, 15 squats, 10 calf raises on the edge of a step","Finish with a 2-minute easy walk"]},
+ {id:"h7",cat:"Away from the gym",title:"Backpack = dumbbell",body:"Fill a backpack with books or water bottles and you've got a weight for:",points:["Backpack squats or goblet squats: 3 × 15","Bent-over backpack rows: 3 × 12","Backpack overhead press: 3 × 10","Backpack on for walking lunges: 3 × 10 each leg","Hold it in a hug for a 30-second wall sit"]},
+ {id:"h8",cat:"Away from the gym",title:"Four-minute Tabata",body:"Short on time on holiday? Pick one exercise (burpees, squats or mountain climbers) and do 20 seconds flat out, 10 seconds rest, 8 times. It's only 4 minutes, but it's tough. Do two different exercises if you're feeling brave."},
+ {id:"h9",cat:"Away from the gym",title:"How little you need",body:"Away for a week or two? Two or three short bodyweight sessions a week is enough to hold onto most of your strength and muscle. Keep the effort high, and don't stress about exact numbers. You'll pick up your gym weights again quickly when you're back."},
+ {id:"h10",cat:"Away from the gym",title:"Holidays count as training",body:"Swimming, surfing, hiking, biking and playing touch on the beach all keep you fit. Log them under Other with an honest intensity, so your training load and calendar stay accurate while you're away."},
+ {id:"h11",cat:"Away from the gym",title:"Home push and legs split",body:"Away for longer? Alternate two short sessions. Day A (push and core): push-up variations, pike push-ups, dips, plank, hollow hold. Day B (legs): squats, reverse lunges, glute bridges, single-leg calf raises, wall sit. 3 sets of each, every other day."},
+ {id:"h12",cat:"Away from the gym",title:"Run plus finisher",body:"Go for a 20–25 minute jog, then finish with 3 rounds of: 15 push-ups, 20 squats, 20 sit-ups and a 30-second plank. Log the run as Cardio and the circuit as a Free Session."}
 ];
 const TIP_BY_ID = Object.fromEntries(TIPS.map(t=>[t.id,t]));
 /* Build a mixed sequence (round-robin by category) then slot repeats in later */
@@ -998,6 +1055,19 @@ function coachNotes(){
           <p><b>The upside</b></p><ul style="margin:0;padding-left:20px;display:grid;gap:4px"><li>Recruits every available muscle fibre for maximum growth stimulus.</li><li>Lots of activation from fewer sets.</li><li>Builds mental toughness.</li></ul>
           <p><b>The cost</b></p><ul style="margin:0;padding-left:20px;display:grid;gap:4px"><li>Fatigue snowballs: failure early in a session weakens every exercise after it.</li><li>Form breaks down when exhausted, raising injury risk on heavy compound lifts.</li><li>Recovery takes longer, so total quality training each week drops.</li></ul>
           <p><b>What to do:</b> finish most sets with 1–3 reps still in the tank. Save true failure for the last set of an exercise, or for safer isolation moves like curls, pushdowns and lateral raises. Every 4–6 weeks, take a <b>no-failure week</b>: same exercises, but stop every set 2 reps short. Fatigue clears and you'll often come back stronger.</p>`}); } }
+  // Away from the gym: still active (cardio or sport) but no gym session for 7+ days
+  { const lastGym=sortedSessions().find(s=>s.type==="gym"), wk=addDays(t,-7);
+    const active=S.sessions.some(s=>s.type!=="gym"&&s.dt.slice(0,10)>=wk);
+    if(lastGym&&daysBetween(lastGym.dt.slice(0,10),t)>=7&&active){
+      const W=[["Holiday circuit","3–4 rounds, 90 seconds rest between rounds",["12 push-ups","20 bodyweight squats","10 reverse lunges each leg","12 glute bridges","30-second plank","10 burpees"]],
+               ["Jog-and-stop","Jog easy 5 minutes, stop for the exercises, repeat 4–5 times",["10 push-ups","15 squats","10 walking lunges each leg","20 mountain climbers"]],
+               ["Park pull workout","Any park with bars, 3–4 sets each",["Pull-ups on the monkey bars","Inverted rows on a low bar × 10–12","Bench dips × 12","Hanging knee raises × 10","30-second dead hang"]]];
+      const w=W[Math.floor(daysBetween("2026-01-05",t)/7)%W.length];
+      out.push({key:"away-gym",c:"",title:"Away from the gym? Try this",
+        t:`No gym session for ${daysBetween(lastGym.dt.slice(0,10),t)} days, but you're still moving. Nice. To keep your strength ticking over, try a ${w[0].toLowerCase()} (${w[1].toLowerCase()}): ${w[2].join(", ")}. Log it as a Free Session.`,
+        html:`<p>No gym session for <b>${daysBetween(lastGym.dt.slice(0,10),t)} days</b>, but you're still moving. Nice work. Two or three short bodyweight sessions a week will hold onto most of your strength until you're back.</p>
+          <p><b>Try this: ${esc(w[0])}</b> <span class="hint">(${esc(w[1])})</span></p><ul style="margin:0;padding-left:20px;display:grid;gap:4px">${w[2].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+          <p class="hint">Log it as Gym Workout → Free Session, using the pink bodyweight exercises.</p>`}); } }
   // Plateaus: normal, and what to do about them
   const pl=plateaus();
   if(pl.length){ const names=pl.slice(0,3).map(x=>x.name), list=names.length>1?names.slice(0,-1).join(", ")+" and "+names[names.length-1]:names[0];
@@ -1270,12 +1340,35 @@ function openCoach(n){
         await savePopups({...p,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,coachLog:{...(p.coachLog||{}),[n.key]:todayStr()}}); renderAll(); }; }});
 }
 /* Re-open the most recent tip at any time (no tick needed, nothing saved) */
+/* Tips library: every tip and workout, browsable by category */
+function openLibrary(start){
+  const cats=[...new Set(TIPS.map(t=>t.cat))], seen=new Set((S.popups.history||[]).map(h=>h.id));
+  let cat=start||"Away from the gym";
+  const tipHtml=t=>`<details><summary>${esc(t.title)}${seen.has(t.id)?`<span class="seen" title="Already seen">✓</span>`:""}${cat==="All"?`<span class="tag">${esc(t.cat)}</span>`:""}</summary>
+    ${t.quote?`<blockquote style="font-size:16px">“${esc(t.quote)}”</blockquote><cite>${esc(t.by)}</cite>`:""}<p style="font-size:14.5px">${esc(t.body)}</p>
+    ${t.points?`<ul style="margin:6px 0 0;padding-left:20px;display:grid;gap:4px;font-size:14.5px">${t.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</details>`;
+  openModal({tag:"Tips library",title:"Tips & workouts",body:`
+    <p class="hint">${TIPS.length} tips and workouts. A new one pops up each day; you can read any of them here. ✓ = already seen.</p>
+    <div class="libcats" id="lib-cats"></div>
+    <div class="liblist" id="lib-list"></div>
+    <div class="mf"><span></span><button type="button" class="btn primary" id="lib-close">Close</button></div>`,
+    onMount:(root,close)=>{
+      const draw=()=>{
+        $("#lib-cats",root).innerHTML=["All",...cats].map(c=>`<button type="button" data-libcat="${esc(c)}" aria-pressed="${c===cat}">${esc(c)} <span style="opacity:.7">${c==="All"?TIPS.length:TIPS.filter(t=>t.cat===c).length}</span></button>`).join("");
+        const list=TIPS.filter(t=>cat==="All"||t.cat===cat);
+        $("#lib-list",root).innerHTML=list.map(tipHtml).join("");
+        if(cat==="Away from the gym"){ const f=$("#lib-list details",root); if(f) f.open=true; }
+      };
+      root.addEventListener("click",e=>{const b=e.target.closest("[data-libcat]"); if(b){cat=b.dataset.libcat; draw(); $(".modal",root).scrollTop=0;}});
+      $("#lib-close",root).onclick=close; draw();
+    }});
+}
 function openTodaysTip(){
   const h=(S.popups.history||[]); const t=h.length?TIP_BY_ID[h[h.length-1].id]:TIP_BY_ID[TIP_SEQ[(S.popups.tipIdx||0)%TIP_SEQ.length]];
   if(!t) return;
   openModal({tag:t.cat,title:t.title,body:(t.quote?`<blockquote>“${esc(t.quote)}”</blockquote><cite>${esc(t.by)}</cite>`:"")+`<p>${esc(t.body)}</p>`+(t.points?`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${t.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
-    `<div class="mf"><span class="hint">A new tip pops up the first time you open the log each day.</span><button type="button" class="btn primary" id="tt-close">Close</button></div>`,
-    onMount:(root,close)=>{$("#tt-close",root).onclick=close}});
+    `<div class="mf"><button type="button" class="btn ghost" id="tt-lib">Browse all tips</button><button type="button" class="btn primary" id="tt-close">Close</button></div>`,
+    onMount:(root,close)=>{$("#tt-close",root).onclick=close; $("#tt-lib",root).onclick=()=>{close();openLibrary("All")}}});
 }
 function openTip(tip,idx,forced){
   const body = (tip.quote?`<blockquote>“${esc(tip.quote)}”</blockquote><cite>${esc(tip.by)}</cite>`:"")+`<p>${esc(tip.body)}</p>`+(tip.points?`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${tip.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:"")+
@@ -1300,7 +1393,9 @@ function runPopups(){
     // A coaching note about a real imbalance takes the slot (each one at most every 14 days); otherwise the next tip in the deck
     const log=p.coachLog||{}, n=coachNotes().find(x=>!log[x.key]||daysBetween(log[x.key],todayStr())>=14);
     if(n){ openCoach(n); return; }
-    const idx=(p.tipIdx||0); openTip(TIP_BY_ID[TIP_SEQ[idx%TIP_SEQ.length]],idx); }
+    const recent=new Set((p.history||[]).slice(-40).map(h=>h.id)); let idx=(p.tipIdx||0), guard=0;
+    while(recent.has(TIP_SEQ[idx%TIP_SEQ.length])&&guard++<TIP_SEQ.length) idx++;
+    openTip(TIP_BY_ID[TIP_SEQ[idx%TIP_SEQ.length]],idx); }
 }
 
 /* =========================================================
@@ -1317,6 +1412,7 @@ function renderAll(){ if(rq) return; rq=true; requestAnimationFrame(()=>{rq=fals
 $("#tab-input").onclick=()=>setView("input"); $("#tab-track").onclick=()=>setView("track");
 $("#b-edit").onclick=openSetup;
 $("#b-tip").onclick=openTodaysTip;
+$("#b-lib").onclick=()=>openLibrary();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&S.ready) runPopups(); });
 window.addEventListener("pageshow",()=>{ if(S.ready) runPopups(); });
 bindInput(); bindTrack(); renderInput(); setView(view); updateNote();
