@@ -31,7 +31,7 @@
   --font:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
   --pop:#b42318; --pop-2:#8f1c13; --pop-tag:#ffd7a3;
-  --combo:#7c3aed; --free:#0e8f9a; --bw:#d9467a;
+  --combo:#7c3aed; --free:#0e8f9a; --bw:#d9467a; --stretch:#e8590c;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -43,7 +43,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6;
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6; --stretch:#fb8a3c;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#080e1c; --surface:#111a2e; --surface-2:#16223b; --surface-3:#1d2b49;
@@ -54,7 +54,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6;
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6; --stretch:#fb8a3c;
   color-scheme:dark}
 *{box-sizing:border-box}
 img{max-width:100%}
@@ -245,6 +245,21 @@ input[type=number]{font-family:var(--mono)}
 .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:12px;font-weight:700;z-index:60;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
 @keyframes fade{from{opacity:0}}
 @keyframes pop{from{transform:translateY(14px) scale(.97);opacity:0}}
+.stretchcard{border:2px solid var(--stretch);background:color-mix(in srgb,var(--stretch) 7%,var(--surface))}
+.stretchcard h2{color:var(--stretch)}
+.stretchopts{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;max-width:620px}
+.stretchopts button{padding:12px 4px;border-radius:12px;border:2px solid color-mix(in srgb,var(--stretch) 40%,var(--line));background:var(--surface);font-weight:800;font-size:14px;cursor:pointer;line-height:1.15}
+.stretchopts button small{display:block;font-size:10.5px;font-weight:700;color:var(--ink-soft);margin-top:2px}
+.stretchopts button[aria-pressed="true"]{background:var(--stretch);border-color:var(--stretch);color:#fff}
+.stretchopts button[aria-pressed="true"] small{color:#fff}
+@media (max-width:480px){.stretchopts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.honest{position:relative;display:inline-block;text-transform:none;letter-spacing:0;font-family:var(--font);background:var(--stretch);color:#fff;font-weight:800;font-size:13px;padding:5px 12px;border-radius:14px;margin-left:10px;vertical-align:4px;transform-origin:left center;animation:honestpop .5s cubic-bezier(.2,1.6,.4,1) both}
+.honest::before{content:"";position:absolute;left:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-right-color:var(--stretch);border-left:0}
+.honest.still{animation:none}
+.honest.bump{animation:honestbump .45s ease}
+@keyframes honestpop{from{transform:scale(0) rotate(-8deg);opacity:0}}
+@keyframes honestbump{30%{transform:scale(1.18) rotate(-4deg)}60%{transform:scale(.95) rotate(2deg)}}
+@media (prefers-reduced-motion:reduce){.honest,.honest.bump{animation:none}}
 @media (prefers-reduced-motion:reduce){.scrim,.modal{animation:none}}
 </style>
 </head>
@@ -309,6 +324,8 @@ const BODYWEIGHT=new Set(["Push-Ups","Tricep Dips","Dips","Diamond Push-Ups","Wi
   "Hanging Leg Raises","Plank","Side Plank","Hollow Body Hold","Dead Bug","Sit-Ups","Decline Ab Crunches"]);
 const TIMED=new Set(["Dead Hang","Superman Hold","Wall Sit","Plank","Side Plank","Hollow Body Hold"]);
 const isBW=n=>BODYWEIGHT.has(n), isTimed=n=>TIMED.has(n);
+/* Stretching after a session: [label, sub-label, short text for history/CSV] */
+const STRETCH=[["None","skipped it","none"],["Minimal","a quick one","minimal"],["5 mins","about 5","5 min"],["10 mins","about 10","10 min"],["10 mins +","more than 10","10+ min"]];
 const uniq=a=>[...new Set(a)];
 /* Push/Pull combo = both normal workouts + both libraries. Free Session = no set exercises; the whole library to pick from. */
 EXERCISES.pushpull={normal:[...EXERCISES.push.normal,...EXERCISES.pull.normal],other:uniq([...EXERCISES.push.other,...EXERCISES.pull.other])};
@@ -695,9 +712,9 @@ const F = { type:null, split:"push", sub:"normal", ex:{}, extras:{push:[],pull:[
             cardio:{act:"Run",km:"",min:"",intensity:null}, other:{act:"",min:"",intensity:null},
             date:todayStr(), time:"" };
 function nowTime(){const d=new Date();return `${pad(d.getHours())}:${pad(d.getMinutes())}`}
-F.time=nowTime(); F.gym={min:"",intensity:null}; F.customOpen=false; F.ate=null; F.protein=null;
+F.time=nowTime(); F.gym={min:"",intensity:null}; F.customOpen=false; F.ate=null; F.protein=null; F.stretch=null;
 function exState(name){ if(!F.ex[name]) F.ex[name]={inc:true,n:2,copy:false,sets:[0,1].map(()=>({w:"",r:"",f:false}))}; return F.ex[name]; }
-function resetForm(){ F.editId=null; F.editCreated=null; F.energy=null; F.sleep=null; F.ate=null; F.protein=null; F.gym={min:"",intensity:null}; F.customOpen=false; F.ex={}; F.extras={push:[],pull:[],legs:[],pushpull:[],free:[]}; F.cardio={act:F.cardio.act,km:"",min:"",intensity:null}; F.other={act:"",min:"",intensity:null}; F.date=todayStr(); F.time=nowTime(); }
+function resetForm(){ F.editId=null; F.editCreated=null; F.stretch=null; F.honestShown=false; F.energy=null; F.sleep=null; F.ate=null; F.protein=null; F.gym={min:"",intensity:null}; F.customOpen=false; F.ex={}; F.extras={push:[],pull:[],legs:[],pushpull:[],free:[]}; F.cardio={act:F.cardio.act,km:"",min:"",intensity:null}; F.other={act:"",min:"",intensity:null}; F.date=todayStr(); F.time=nowTime(); }
 
 function intensityPicker(cur,key){
   const cols=["#3b82f6","#06b6d4","#10b981","#eab308","#f97316","#dc2626"];
@@ -793,7 +810,12 @@ function renderInput(){
         <div><div class="hint" style="margin-bottom:6px">Ate a proper meal before?</div><div class="seg small"><button type="button" class="c-cardio" aria-pressed="${F.ate===true}" data-fuel="ate|yes">Yes</button><button type="button" class="c-other" aria-pressed="${F.ate===false}" data-fuel="ate|no">No</button></div></div>
         <div><div class="hint" style="margin-bottom:6px">Protein after?</div><div class="seg small"><button type="button" class="c-cardio" aria-pressed="${F.protein===true}" data-fuel="protein|yes">Yes</button><button type="button" class="c-other" aria-pressed="${F.protein===false}" data-fuel="protein|no">No</button></div></div>
       </div></div>`:""}
+    ${F.type?`<div class="card stack stretchcard" id="stretch-card">
+      <div><h2>Stretching <span class="honest${F.honestShown?" still":""}" id="honest">Be honest :)</span></h2><p class="hint">How much did you stretch after this session? (required)</p></div>
+      <div class="stretchopts" role="group" aria-label="Stretching">${STRETCH.map((o,i)=>`<button type="button" data-stretch="${i}" aria-pressed="${F.stretch===i}">${o[0]}<small>${o[1]}</small></button>`).join("")}</div>
+    </div>`:""}
     ${F.type?`<div class="savebar"><span class="err" id="in-err"></span>${F.editId?`<button type="button" class="btn ghost" id="in-cancel">Cancel edit</button>`:""}<button type="button" class="btn primary" id="in-save">${F.editId?"Update":"Save"} ${F.type==="gym"?(F.split==="free"?"free session":SPLITS[F.split]+" session"):F.type==="cardio"?F.cardio.act.toLowerCase():"activity"}</button></div>`:""}`;
+  if(F.type) setTimeout(()=>{F.honestShown=true},600);
   if(F.editId) v.insertAdjacentHTML("afterbegin",`<div class="pbcard" style="border-color:var(--pull)"><div class="medal" style="background:var(--pull);color:#fff;box-shadow:none;font-size:13px">EDIT</div><div><h2>Editing a saved session</h2><p class="hint">Change anything below, then tap Update. The original stays as it was until you do.</p></div><button type="button" class="btn" id="in-cancel2">Cancel</button></div>`);
 }
 function syncCopy(card,name){
@@ -834,6 +856,7 @@ function bindInput(){
     if(b.dataset.int){const k=b.closest("[data-ikey]").dataset.ikey;F[k].intensity=+b.dataset.int;renderInput();return}
     if(b.id==="in-save"){doSave();return}
     if(b.id==="in-cancel"||b.id==="in-cancel2"){resetForm();F.type=null;renderInput();toast("Edit cancelled");return}
+    if(b.dataset.stretch!=null&&b.dataset.stretch!==""&&b.closest(".stretchopts")){F.stretch=+b.dataset.stretch;renderInput();const h=$("#honest");if(h){h.classList.add("bump")}return}
     if(b.dataset.energy){const n=+b.dataset.energy;F.energy=F.energy===n?null:n;renderInput();return}
     if(b.dataset.sleep){const v2=b.dataset.sleep==="yes";F.sleep=F.sleep===v2?null:v2;renderInput();return}
     const card=b.closest(".ex"); if(!card) return; const name=card.dataset.ex, st=exState(name);
@@ -862,9 +885,10 @@ async function doSave(){
   const err=$("#in-err"); err.textContent="";
   if(!F.date){err.textContent="Enter the date of the workout.";$("#in-date")?.focus();return}
   if(!F.time){err.textContent="Enter the time of the workout.";$("#in-time")?.focus();return}
+  if(F.stretch==null){err.textContent="Answer the stretching question first.";const c=$("#stretch-card");if(c){c.scrollIntoView({behavior:"smooth",block:"center"});const h=$("#honest");if(h){h.classList.remove("bump");void h.offsetWidth;h.classList.add("bump")}}return}
   const dt=`${F.date}T${F.time}`; const editing=!!F.editId;
   let s={id:F.editId||uid(),dt,created:F.editCreated||new Date().toISOString(),type:F.type};
-  if(F.energy) s.energy=F.energy; if(F.sleep!=null) s.sleep=F.sleep; if(F.ate!=null) s.ate=F.ate; if(F.protein!=null) s.protein=F.protein;
+  s.stretch=F.stretch; if(F.energy) s.energy=F.energy; if(F.sleep!=null) s.sleep=F.sleep; if(F.ate!=null) s.ate=F.ate; if(F.protein!=null) s.protein=F.protein;
   if(F.type==="gym"){
     const names=[...EXERCISES[F.split].normal,...F.extras[F.split]];
     const ex=[]; names.forEach(n=>{const st=F.ex[n]; if(!st||!st.inc) return;
@@ -904,7 +928,7 @@ function spotPBs(s){
 }
 function loadSession(s){
   resetForm(); F.editId=s.id; F.editCreated=s.created||null; F.type=s.type; F.date=s.dt.slice(0,10); F.time=s.dt.slice(11,16);
-  F.energy=s.energy??null; F.sleep=s.sleep??null; F.ate=s.ate??null; F.protein=s.protein??null;
+  F.stretch=s.stretch??null; F.energy=s.energy??null; F.sleep=s.sleep??null; F.ate=s.ate??null; F.protein=s.protein??null;
   F.gym={min:s.minutes?String(s.minutes):"",intensity:s.intensity??null};
   if(s.type==="gym"){ F.split=s.split; F.sub="normal";
     EXERCISES[s.split].normal.forEach(n=>{F.ex[n]={inc:false,n:2,copy:false,sets:[0,1].map(()=>({w:"",r:"",f:false}))}});
@@ -928,9 +952,9 @@ function openNewPB(found,date){
 /* CSV backup */
 function csvLine(a){return a.map(v=>{v=v==null?"":String(v);return /[",\n]/.test(v)?`"${v.replace(/"/g,'""')}"`:v}).join(",")}
 function workoutsCsv(){
-  const rows=[["date","time","type","day","exercise","set","weight_kg","reps","to_failure","activity","distance_km","minutes","intensity_1_6","energy_1_5","slept_well","ate_before","protein_after","training_load","load_estimated"]];
+  const rows=[["date","time","type","day","exercise","set","weight_kg","reps","to_failure","activity","distance_km","minutes","intensity_1_6","energy_1_5","slept_well","ate_before","protein_after","training_load","load_estimated","stretching"]];
   S.sessions.slice().sort((a,b)=>a.dt.localeCompare(b.dt)).forEach(s=>{
-    const d=s.dt.slice(0,10),t=s.dt.slice(11,16),yn=v=>v==null?"":v?"yes":"no",L=sessionLoad(s),tail=[s.energy??"",yn(s.sleep),yn(s.ate),yn(s.protein),L.v,L.est?"yes":"no"];
+    const d=s.dt.slice(0,10),t=s.dt.slice(11,16),yn=v=>v==null?"":v?"yes":"no",L=sessionLoad(s),tail0=[s.energy??"",yn(s.sleep),yn(s.ate),yn(s.protein),L.v,L.est?"yes":"no"],tail=[...tail0,s.stretch!=null?STRETCH[s.stretch][2]:""];
     if(s.type==="gym") s.exercises.forEach(e=>e.sets.forEach((x,i)=>rows.push([d,t,"gym",SPLITS[s.split],e.name,i+1,x.w,x.r,x.f?"yes":"no","","",s.minutes??"",s.intensity??"",...tail])));
     else if(s.type==="cardio") rows.push([d,t,"cardio","","","","","","",s.cardio.act,s.cardio.km,s.cardio.min,s.cardio.intensity,...tail]);
     else rows.push([d,t,"other","","","","","","",s.other.act,"",s.other.min,s.other.intensity,...tail]);
@@ -1068,6 +1092,12 @@ function coachNotes(){
         html:`<p>No gym session for <b>${daysBetween(lastGym.dt.slice(0,10),t)} days</b>, but you're still moving. Nice work. Two or three short bodyweight sessions a week will hold onto most of your strength until you're back.</p>
           <p><b>Try this: ${esc(w[0])}</b> <span class="hint">(${esc(w[1])})</span></p><ul style="margin:0;padding-left:20px;display:grid;gap:4px">${w[2].map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
           <p class="hint">Log it as Gym Workout → Free Session, using the pink bodyweight exercises.</p>`}); } }
+  // Stretching habit (sessions logged with the stretching question)
+  { const st=rec.filter(s=>s.stretch!=null);
+    if(st.length>=6){ const good=st.filter(s=>s.stretch>=2).length, pc=Math.round(good/st.length*100), none=st.filter(s=>s.stretch===0).length;
+      if(pc<40) out.push({key:"stretch-low",title:"Long and Strong check-in",
+        t:`You stretched for 5 minutes or more after ${good} of your last ${st.length} sessions (${pc}%)${none?`, and skipped it completely ${none} time${none===1?"":"s"}`:""}. Muscles need to be long and strong: aim for 5–10 minutes after every session, focusing on the muscles you just trained.`});
+      else if(pc>=70) out.push({key:"stretch-good",c:"good",title:"Great stretching habit",t:`You stretched for 5+ minutes after ${pc}% of your sessions in the last 4 weeks. Long and strong. Keep it up.`}); } }
   // Plateaus: normal, and what to do about them
   const pl=plateaus();
   if(pl.length){ const names=pl.slice(0,3).map(x=>x.name), list=names.length>1?names.slice(0,-1).join(", ")+" and "+names[names.length-1]:names[0];
@@ -1183,6 +1213,7 @@ function histRow(s){
   else if(s.type==="cardio"){title=s.cardio.act;detail=`${s.cardio.km!=null?s.cardio.km+" km · ":""}${s.cardio.min} min · intensity ${s.cardio.intensity}/6`}
   else {title=s.other.act;detail=`${s.other.min} min · intensity ${s.other.intensity}/6`}
   { const L=sessionLoad(s); detail+=` · load ${L.est?"~":""}${L.v}`; }
+  if(s.stretch!=null) detail+=` · stretch: ${STRETCH[s.stretch][2]}`;
   if(s.energy) detail+=` · energy ${s.energy}/5`; if(s.sleep!=null) detail+=s.sleep?" · slept well":" · poor sleep";
   return `<div class="hrow" style="--c:var(${CAT_VAR[c]})"><span class="bar"></span><div style="min-width:0"><div class="ht">${esc(title)} <span class="hint num" style="font-weight:600">${fmtDate(s.dt)} ${s.dt.slice(11,16)}</span></div><div class="hd">${esc(detail)}</div></div><div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end"><button type="button" class="btn sm ghost" data-edit="${s.id}">Edit</button><button type="button" class="btn sm ghost" data-del="${s.id}" aria-label="Delete session">Delete</button></div></div>`;
 }
