@@ -567,11 +567,31 @@ const TIPS = [
  {id:"h11",cat:"Away from the gym",title:"Home push and legs split",body:"Away for longer? Alternate two short sessions. Day A (push and core): push-up variations, pike push-ups, dips, plank, hollow hold. Day B (legs): squats, reverse lunges, glute bridges, single-leg calf raises, wall sit. 3 sets of each, every other day."},
  {id:"h12",cat:"Away from the gym",title:"Run plus finisher",body:"Go for a 20–25 minute jog, then finish with 3 rounds of: 15 push-ups, 20 squats, 20 sit-ups and a 30-second plank. Log the run as Cardio and the circuit as a Free Session."}
 ];
+/* Quick stretch tips: shown now and then when "None" is chosen for stretching; also in the Tips library (not in the daily deck) */
+const QUICK_STRETCH=[
+ {id:"qs1",cat:"Quick stretches",title:"The 90-second lunchtime three",body:"Short on time? These three cover most of what you train. 30 seconds each, done before you leave the gym:",points:["Doorway chest stretch (forearm on the frame, step through)","Standing hamstring stretch (heel on a bench, hinge forward)","Half-kneeling hip-flexor stretch (squeeze the back glute)"]},
+ {id:"qs2",cat:"Quick stretches",title:"Stretch while you rest",body:"You already rest 1–2 minutes between sets. Use that time: hold a stretch for the muscle you're not working right now. You'll finish stretched with no extra time needed.",points:["Bench day: calf or hamstring stretch between sets","Pull day: chest doorway stretch between rows","Legs day: lat or chest stretch between split squats"]},
+ {id:"qs3",cat:"Quick stretches",title:"Drop one set, gain 3 minutes",body:"If lunchtime is tight, finish your last exercise one set early and use those 3 minutes to stretch. One less set costs almost nothing; skipping stretching every time adds up to tight hips, shoulders and hamstrings."},
+ {id:"qs4",cat:"Quick stretches",title:"Stretch later still counts",body:"No time at school? Do 5 minutes at home tonight: while watching TV, before bed or after a shower when your muscles are warm. It still helps, and you can tick 5 mins next time if you do it straight after."},
+ {id:"qs5",cat:"Quick stretches",title:"Finish Pull day with a dead hang",body:"Hang from the pull-up bar for 30–45 seconds at the end of Pull day. It stretches your lats, shoulders and spine and trains your grip at the same time. Two jobs in under a minute."},
+ {id:"qs6",cat:"Quick stretches",title:"Set a 2-minute timer",body:"Put a 2-minute timer on your phone the moment you finish your last set and don't pick up your bag until it goes off. Small, fixed habits are easier to keep than big plans."},
+ {id:"qs7",cat:"Quick stretches",title:"One-minute world's greatest stretch",body:"Lunge forward, both hands inside your front foot, rotate your top arm up to the ceiling, then reach back down. 5 slow reps each side covers hips, hamstrings, groin and upper back in about a minute."},
+ {id:"qs8",cat:"Quick stretches",title:"Warm-up that stretches too",body:"A 60-second dynamic warm-up (leg swings, arm circles, walking lunges with a twist) loosens you up before you lift. It's not a replacement for stretching after, but it's a quick win when time is short."},
+ {id:"qs9",cat:"Quick stretches",title:"Why it's worth 3 minutes",body:"Lifting shortens and tightens the muscles you train. Without stretching, that slowly pulls your posture forward and limits your range of motion, which can hold back your lifts and your game. Long and strong, even in 3 minutes."},
+ {id:"qs10",cat:"Quick stretches",title:"Stretch on the walk back",body:"Walking back to class? Stop for 20 seconds each: a standing quad stretch, an overhead tricep stretch and a calf stretch against a wall. Nobody will notice, and your muscles will thank you."}
+];
+const SPLIT_STRETCH={
+  push:["Doorway chest stretch, 30 s each side","Overhead tricep stretch, 30 s each arm","Cross-body shoulder stretch, 30 s each arm"],
+  pull:["Lat stretch holding a rack or pole, 30 s each side","Bicep stretch with palm on a wall, 30 s each arm","Dead hang from the bar, 30 s"],
+  legs:["Half-kneeling hip-flexor stretch, 30 s each side","Hamstring stretch with heel on a bench, 30 s each leg","Calf stretch on a step, 30 s each leg"],
+  pushpull:["Doorway chest stretch, 30 s each side","Lat stretch holding a rack, 30 s each side","Overhead tricep stretch, 30 s each arm"],
+  free:["Doorway chest stretch, 30 s each side","Hamstring stretch with heel on a bench, 30 s each leg","Half-kneeling hip-flexor stretch, 30 s each side"]};
+TIPS.push(...QUICK_STRETCH.map(t=>({...t,noDeck:true})));
 const TIP_BY_ID = Object.fromEntries(TIPS.map(t=>[t.id,t]));
 /* Build a mixed sequence (round-robin by category) then slot repeats in later */
 const TIP_SEQ = (()=>{
   // Spread every category evenly through the deck: each tip gets a position (i+0.5)/n within its category
-  const cats={}; TIPS.forEach(t=>{(cats[t.cat]=cats[t.cat]||[]).push(t.id)});
+  const cats={}; TIPS.filter(t=>!t.noDeck).forEach(t=>{(cats[t.cat]=cats[t.cat]||[]).push(t.id)});
   const order=Object.keys(cats), items=[];
   order.forEach((c,ci)=>cats[c].forEach((id,i)=>items.push({id,k:(i+0.5)/cats[c].length+ci*1e-4})));
   const seq=items.sort((x,y)=>x.k-y.k).map(x=>x.id);
@@ -856,7 +876,7 @@ function bindInput(){
     if(b.dataset.int){const k=b.closest("[data-ikey]").dataset.ikey;F[k].intensity=+b.dataset.int;renderInput();return}
     if(b.id==="in-save"){doSave();return}
     if(b.id==="in-cancel"||b.id==="in-cancel2"){resetForm();F.type=null;renderInput();toast("Edit cancelled");return}
-    if(b.dataset.stretch!=null&&b.dataset.stretch!==""&&b.closest(".stretchopts")){F.stretch=+b.dataset.stretch;renderInput();const h=$("#honest");if(h){h.classList.add("bump")}return}
+    if(b.dataset.stretch!=null&&b.dataset.stretch!==""&&b.closest(".stretchopts")){F.stretch=+b.dataset.stretch;renderInput();const h=$("#honest");if(h){h.classList.add("bump")}if(F.stretch===0) maybeStretchTip(); return}
     if(b.dataset.energy){const n=+b.dataset.energy;F.energy=F.energy===n?null:n;renderInput();return}
     if(b.dataset.sleep){const v2=b.dataset.sleep==="yes";F.sleep=F.sleep===v2?null:v2;renderInput();return}
     const card=b.closest(".ex"); if(!card) return; const name=card.dataset.ex, st=exState(name);
@@ -1165,6 +1185,7 @@ function renderTrack(){
     </div>
     <div class="card"><h3>Training load per week</h3><div class="chartbox tall"><canvas id="c-load"></canvas></div>
       <p class="hint" style="margin-top:8px">Load = minutes × intensity (1–6) for every session. It shows how hard each week was overall. Gym sessions without a length or intensity are estimated from the number of sets. A week far above the line (your 4-week average) is a sign to take it easier.</p></div>
+    ${stretchCard()}
     <div class="card">${cardHead("Exercise progress","c-ex",exTops())}
       ${names.length?`<select id="t-ex" aria-label="Exercise" style="margin-bottom:10px">${names.map(n=>`<option ${n===trackEx?"selected":""}>${esc(n)}</option>`).join("")}</select>`:""}
       <div class="chartbox tall"><canvas id="c-ex"></canvas></div><p class="hint" style="margin-top:8px">${isPct("c-ex")?`Heaviest set each session as % change from the first time you logged ${esc(trackEx||"it")}.`:"Line: heaviest set each session. Bars: total volume (weight × reps across all sets)."}</p></div>
@@ -1192,6 +1213,26 @@ function renderTrack(){
 }
 function exPoints(){ if(!trackEx) return []; return sortedSessions().slice().reverse().filter(s=>s.type==="gym"&&s.exercises.some(e=>e.name===trackEx)).map(s=>{const e=s.exercises.find(x=>x.name===trackEx),t=topSet(e);return{d:s.dt,w:t.w,r:t.r,vol:e.sets.reduce((a,x)=>a+(x.w||0)*(x.r||0),0),reps:e.sets.reduce((a,x)=>a+x.r,0)}}); }
 function exTops(){ const pts=exPoints(), bw=pts.length&&pts.every(p=>!p.w); return pts.map(p=>bw?p.r:p.w); }
+function mixHex(a,b,t){ // blend colour a into b by t (0..1); falls back to a
+  const h=x=>{x=x.replace("#","");if(x.length===3)x=x.split("").map(c=>c+c).join("");return [0,2,4].map(i=>parseInt(x.slice(i,i+2),16))};
+  try{const A=h(a),B=h(b);if(A.some(isNaN)||B.some(isNaN))return a;return "#"+A.map((v,i)=>Math.round(B[i]+(v-B[i])*t).toString(16).padStart(2,"0")).join("")}catch(e){return a}
+}
+function stretchCard(){
+  const st=sortedSessions().filter(x=>x.stretch!=null), since=addDays(todayStr(),-28), rec=st.filter(x=>x.dt.slice(0,10)>=since);
+  const pc=rec.length?Math.round(rec.filter(x=>x.stretch>=2).length/rec.length*100):null;
+  let streak=0; for(const x of st){ if(x.stretch>=2) streak++; else break; }
+  const last=st.slice(0,10).reverse(), lvl=["var(--line-strong)","color-mix(in srgb,var(--stretch) 30%,var(--surface))","color-mix(in srgb,var(--stretch) 55%,var(--surface))","color-mix(in srgb,var(--stretch) 80%,var(--surface))","var(--stretch)"];
+  return `<div class="card stretchcard"><h2 style="font-size:24px;margin-bottom:10px">Stretching</h2>
+    <div class="tiles" style="margin-bottom:12px">
+      <div class="tile"><div class="k">5+ min · last 4 weeks</div><div class="v num">${pc==null?"—":pc+"%"}</div><div class="d">${rec.length} session${rec.length===1?"":"s"} answered</div></div>
+      <div class="tile"><div class="k">Streak</div><div class="v num">${streak}</div><div class="d">sessions in a row with 5+ min</div></div>
+      <div class="tile" style="grid-column:span 2"><div class="k">Last 10 sessions</div>
+        <div style="display:flex;gap:5px;margin:10px 0 6px;flex-wrap:wrap">${last.length?last.map(x=>`<span title="${fmtDate(x.dt)}: ${STRETCH[x.stretch][0]}" style="width:22px;height:22px;border-radius:6px;background:${lvl[x.stretch]}"></span>`).join(""):`<span class="hint">No answers yet</span>`}</div>
+        <div class="d">Oldest → newest. Darker orange = more stretching.</div></div>
+    </div>
+    <div class="chartbox"><canvas id="c-stretch"></canvas></div>
+    <p class="hint" style="margin-top:8px">Sessions each week by how much you stretched afterwards. Aim for mostly dark orange: 5–10 minutes after every session keeps your muscles long and strong.</p></div>`;
+}
 function calendar(){
   const weeks=weeksBack(12), byDay={}; S.sessions.forEach(s=>{const d=s.dt.slice(0,10);(byDay[d]=byDay[d]||[]).push(catOf(s))});
   const days=["Mon","","Wed","","Fri","","Sun"]; let h=`<div class="cal"><span></span>${weeks.map(w=>`<span class="wk">${parseYmd(w).getDate()}/${parseYmd(w).getMonth()+1}</span>`).join("")}`;
@@ -1220,7 +1261,7 @@ function histRow(s){
 function emptyBox(id,msg){const c=document.getElementById(id);if(!c)return;const p=c.parentElement;p.querySelector(".empty")?.remove();c.hidden=true;const d=document.createElement("div");d.className="empty";d.textContent=msg;p.appendChild(d)}
 function mk(id,cfg){ if(charts[id]){charts[id].destroy();delete charts[id]} const el=document.getElementById(id); if(!el||!window.Chart) return; charts[id]=new Chart(el,cfg); }
 function drawCharts(){
-  if(!window.Chart){ ["c-load","c-ex","c-weight","c-height","c-bicep","c-waist","c-strength","c-cardio"].forEach(id=>emptyBox(id,"Charts couldn't load. Check the internet connection and reopen.")); return; }
+  if(!window.Chart){ ["c-load","c-stretch","c-ex","c-weight","c-height","c-bicep","c-waist","c-strength","c-cardio"].forEach(id=>emptyBox(id,"Charts couldn't load. Check the internet connection and reopen.")); return; }
   const ink=cssv("--ink-soft"), grid=cssv("--line"), col=k=>cssv(CAT_VAR[k]), gold=cssv("--gold"), pull=cssv("--pull");
   Chart.defaults.font.family="Manrope, system-ui, sans-serif"; Chart.defaults.color=ink;
   const sc=(extra={})=>({grid:{color:grid},border:{color:grid},ticks:{color:ink},...extra});
@@ -1232,6 +1273,13 @@ function drawCharts(){
     mk("c-load",{data:{labels:weeks.map(fmtShort),datasets:[...cats.map(k=>({type:"bar",label:CAT_LABEL[k],backgroundColor:col(k),borderRadius:3,stack:"l",data:weeks.map(w=>weekLoad(w,k))})),
       {type:"line",label:"4-week average",data:avg4,borderColor:cssv("--ink"),borderDash:[5,4],borderWidth:1.5,pointRadius:0,tension:.3}]},
       options:base({scales:{x:sc({stacked:true,grid:{display:false}}),y:sc({stacked:true,beginAtZero:true})}})}); }
+  // stretching per week
+  { const st=S.sessions.filter(x=>x.stretch!=null);
+    if(!st.length) emptyBox("c-stretch","Stretching shows up here once sessions are saved with the stretching question.");
+    else { const sb=cssv("--stretch"), bg=cssv("--surface"), shades=[cssv("--line-strong"),mixHex(sb,bg,.3),mixHex(sb,bg,.55),mixHex(sb,bg,.8),sb];
+      mk("c-stretch",{type:"bar",data:{labels:weeks.map(fmtShort),datasets:STRETCH.map((o,i)=>({label:o[0],backgroundColor:shades[i],borderRadius:3,stack:"s",
+        data:weeks.map(w=>st.filter(x=>mondayOf(x.dt.slice(0,10))===w&&x.stretch===i).length)}))},
+        options:base({scales:{x:sc({stacked:true,grid:{display:false}}),y:sc({stacked:true,beginAtZero:true,ticks:{color:ink,precision:0}})}})}); } }
   // exercise progress
   if(!trackEx) emptyBox("c-ex","Log a gym session to see progress for each exercise.");
   else if(isPct("c-ex")){ const pts=exPoints(), bw=pts.every(p=>!p.w), c=cssv("--pull");
@@ -1371,6 +1419,23 @@ function openCoach(n){
         await savePopups({...p,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,coachLog:{...(p.coachLog||{}),[n.key]:todayStr()}}); renderAll(); }; }});
 }
 /* Re-open the most recent tip at any time (no tick needed, nothing saved) */
+/* Now and then (at most every 2 days) when "None" is picked for stretching */
+function maybeStretchTip(){
+  const p=S.popups||{}, today=todayStr();
+  if(p.lastStretchTip&&daysBetween(p.lastStretchTip,today)<2) return;
+  const idx=p.stretchTipIdx||0; let t;
+  if(idx%4===0&&F.type==="gym"&&SPLIT_STRETCH[F.split]){
+    t={cat:"Quick stretch tip",title:`3 quick stretches for ${F.split==="free"?"today":SPLITS[F.split]+" day"}`,body:"Short on time at lunch? Do these before you head back to class. Under 3 minutes:",points:SPLIT_STRETCH[F.split]};
+  } else { const q=QUICK_STRETCH[Math.floor(idx/1)%QUICK_STRETCH.length]; t={...q,cat:"Quick stretch tip"}; }
+  setTimeout(()=>{
+    if($("#modal-root").innerHTML) return;
+    openModal({tag:t.cat,title:t.title,body:`<p>${esc(t.body)}</p>${t.points?`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${t.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}
+      <p class="hint">You can still save with “None”. This is just a nudge for next time.</p>
+      <div class="mf"><button type="button" class="btn ghost" id="qs-lib">More quick stretches</button><button type="button" class="btn primary" id="qs-ok">Got it</button></div>`,
+      onMount:(root,close)=>{ $("#qs-ok",root).onclick=close; $("#qs-lib",root).onclick=()=>{close();openLibrary("Quick stretches")}; }});
+    savePopups({...S.popups,lastStretchTip:today,stretchTipIdx:idx+1});
+  },350);
+}
 /* Tips library: every tip and workout, browsable by category */
 function openLibrary(start){
   const cats=[...new Set(TIPS.map(t=>t.cat))], seen=new Set((S.popups.history||[]).map(h=>h.id));
