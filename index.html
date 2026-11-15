@@ -228,6 +228,10 @@ input[type=number]{font-family:var(--mono)}
 /* ---------- Modal ---------- */
 .scrim{position:fixed;inset:0;background:rgba(5,10,24,.62);display:grid;place-items:center;z-index:50;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));animation:fade .18s ease}
 .modal{background:var(--surface);color:var(--ink);border-radius:18px;max-width:560px;width:100%;max-height:100%;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.4);animation:pop .25s cubic-bezier(.2,.9,.3,1.2)}
+.modal.wide{max-width:820px}
+.modal.wide .mb p,.modal.wide .mb li{font-size:16px}
+.modal.wide .mb p{max-width:none}
+.extlink{font-weight:800;color:var(--pull);text-decoration:underline;text-underline-offset:2px}
 .modal .mh{padding:20px 22px 16px;background:linear-gradient(135deg,var(--pop),var(--pop-2));color:var(--on-navy);position:relative}
 .modal .mh .tag{color:var(--pop-tag)}
 .modal .btn.primary{background:var(--pop);border-color:var(--pop);color:#fff}
@@ -594,6 +598,31 @@ const SPLIT_STRETCH={
   pushpull:["Doorway chest stretch, 30 s each side","Lat stretch holding a rack, 30 s each side","Overhead tricep stretch, 30 s each arm"],
   free:["Doorway chest stretch, 30 s each side","Hamstring stretch with heel on a bench, 30 s each leg","Half-kneeling hip-flexor stretch, 30 s each side"]};
 TIPS.push(...QUICK_STRETCH.map(t=>({...t,noDeck:true})));
+/* "2 sets to failure" research note (verified against the cited studies) */
+const TWOSET_POINTS=[
+ ["You don't need to fail to grow.","A 2022 review of 15 studies (Grgic et al.) found no real difference in muscle growth or strength between going to failure and stopping a little short of it."],
+ ["Failure on set 1 costs you set 2.","Going to complete failure on your first set usually means far fewer reps on your second. Form also breaks down when you're exhausted, which is when injuries happen, and the fatigue builds up across the week. That matters even more at 15: your body is still growing, and good technique is the priority."],
+ ["Total sets matter.","Schoenfeld and colleagues (2017) found that 10 or more hard sets per muscle each week built more muscle than fewer than 5 (about 9.8% growth versus 5.4%). Two sets per exercise can leave some muscles under 10 a week."],
+ ["Failure every set didn't help strength.","In an 8-week study of 38 trained men (Robinson et al., 2025), stopping 1–3 reps short gave bench and squat gains as good as or better than going to failure every set. The effect on muscle size was unclear."],
+ ["Experience changes things.","The 2022 review found that well-trained lifters got a small extra growth benefit from going to failure. That's why many coaches save it for experienced lifters, the last set, or the end of a training block."]];
+const TWOSET_PEOPLE=[
+ ["Jeff Nippard","Canadian natural bodybuilder with a biochemistry degree. Breaks down studies on reps in reserve and training volume.","https://www.youtube.com/@JeffNippard"],
+ ["Dr Mike Israetel (Renaissance Periodization)","PhD in sport physiology. Helped make “reps in reserve” mainstream: start a training block 2–3 reps short, and only push to failure near the end.","https://www.youtube.com/@RenaissancePeriodization"],
+ ["Sean Nalewanyj","YouTube and TikTok. Debunks “bro-science” and focuses on strict form, leaving 1–2 reps in the tank, and steady progress.","https://www.youtube.com/user/NalewanyjFitness"],
+ ["Jeremy Ethier (Built With Science)","Applies sports science to lifting and explains the “effective reps” idea.","https://www.youtube.com/@JeremyEthier"]];
+const twosetPeopleHtml=()=>`<ul style="margin:0;padding-left:20px;display:grid;gap:6px">${TWOSET_PEOPLE.map(x=>`<li><a class="extlink" href="${x[2]}" target="_blank" rel="noopener noreferrer">${esc(x[0])} ↗</a> ${esc(x[1])}</li>`).join("")}</ul>`;
+const TWOSET_INTRO="That style is everywhere on TikTok and Reels right now, from Sam Sulek edits to old Mike Mentzer “Heavy Duty” clips. It looks hardcore, and when massive influencers do it, it feels like a cheat code. Before you lock it in, here's what researchers found when they tested it:";
+const TWOSET_END="A good middle ground to try: keep the intensity, leave 1–2 reps in the tank on your heavy lifts, and use the saved energy for more total sets across the week.";
+const TWOSET_SHORT=[
+ ["Two sets to failure again?","Try leaving 1–2 reps in the tank on set 1 next time and see how much stronger set 2 feels."],
+ ["Set 1 to failure = weaker set 2","Going all the way on your first set usually costs you reps on the second. Save failure for your last set."],
+ ["Technique first","Tired form is when injuries happen. While you're still growing, a clean rep beats a grinding one."],
+ ["More sets, less failure","A third set with 1–2 reps in reserve often builds more muscle than two sets to failure."],
+ ["Curious why?","Search “reps in reserve” on Jeff Nippard's or Jeremy Ethier's channel and make up your own mind."]];
+TIPS.push({id:"tf2",cat:"Training to failure",noDeck:true,title:"2 sets to failure? Do some digging",body:TWOSET_INTRO,
+  points:[...TWOSET_POINTS.map(x=>x[0]+" "+x[1]),"Do some research of your own. Good people to check out: "+TWOSET_PEOPLE.map(x=>x[0]).join(", ")+".",TWOSET_END],
+  html:()=>`<ul style="margin:6px 0 0;padding-left:20px;display:grid;gap:6px;font-size:14.5px">${TWOSET_POINTS.map(x=>`<li><b>${esc(x[0])}</b> ${esc(x[1])}</li>`).join("")}</ul>
+    <p style="font-size:14.5px;margin-top:10px"><b>Do some research of your own.</b> These people explain the science well:</p>${twosetPeopleHtml()}<p style="font-size:14.5px;margin-top:10px"><b>${esc(TWOSET_END)}</b></p>`});
 const TIP_BY_ID = Object.fromEntries(TIPS.map(t=>[t.id,t]));
 /* Build a mixed sequence (round-robin by category) then slot repeats in later */
 const TIP_SEQ = (()=>{
@@ -1062,6 +1091,13 @@ function insights(){
 }
 function splitCounts(list){ const sc={push:0,pull:0,legs:0};
   list.forEach(s=>{ if(s.type!=="gym") return; if(s.split==="pushpull"){sc.push++;sc.pull++} else if(sc[s.split]!=null) sc[s.split]++; }); return sc; }
+/* Sessions in the list where at least half the exercises were 2 sets or fewer with every set to failure.
+   Returns {n, of} when that happened in 3+ gym sessions, otherwise null. */
+function twoSetFailure(list){
+  const gym=list.filter(s=>s.type==="gym"&&s.exercises.length);
+  const n=gym.filter(s=>{ const hit=s.exercises.filter(e=>e.sets.length<=2&&e.sets.length>0&&e.sets.every(x=>x.f)).length; return hit>=Math.ceil(s.exercises.length/2); }).length;
+  return n>=3?{n,of:gym.length}:null;
+}
 /* Training load = minutes × intensity (1–6). Gym sessions without length or intensity are estimated (≈3.5 min per set, intensity 4). */
 function sessionLoad(s){
   if(s.type==="cardio") return {v:Math.round((s.cardio.min||0)*(s.cardio.intensity||0)),est:false};
@@ -1096,11 +1132,28 @@ function coachNotes(){
         t:`Great to see you back after ${prevGap} days off. Gains come back quickly thanks to "muscle memory": your muscles and nervous system remember how to do the work. For the first session or two, use about 80–90% of your usual weights and leave a couple of reps in the tank. You'll be back to your old numbers within a week or two.`});
     }
   }
+  // The "2 sets to failure" pattern: full research note at most every 6 weeks, short nudges about weekly in between
+  const ts=twoSetFailure(rec.filter(s=>s.dt.slice(0,10)>=addDays(t,-21))), log=(S.popups&&S.popups.coachLog)||{};
+  if(ts&&t>="2026-11-22"){ // first shown no earlier than 22 Nov 2026
+    const lastLong=log["twoset-long"], longDue=!lastLong||daysBetween(lastLong,t)>=42;
+    if(longDue){
+      out.push({key:"twoset-long",every:42,wide:true,minRead:45,title:"2 sets to failure? Do some digging",
+        t:`${ts.n} of your last ${ts.of} gym sessions were mostly 2 sets to failure. Research says you can get the same growth while stopping 1–2 reps short, and more total sets helps more. Open the Tips library (Training to failure) for the studies and who to check out.`,
+        html:`<p>You've been doing a lot of 2-sets-to-failure lately: <b>${ts.n} of your last ${ts.of} gym sessions</b>. ${esc(TWOSET_INTRO)}</p>
+          <ul style="margin:0;padding-left:20px;display:grid;gap:6px">${TWOSET_POINTS.map(x=>`<li><b>${esc(x[0])}</b> ${esc(x[1])}</li>`).join("")}</ul>
+          <p><b>Don't just take an app's word for it, or an influencer's. Do some research of your own.</b> These people explain the science well:</p>
+          ${twosetPeopleHtml()}
+          <p><b>${esc(TWOSET_END)}</b></p>`});
+    } else if(daysBetween(lastLong,t)>=7){
+      const s=TWOSET_SHORT[Math.floor(daysBetween("2026-01-05",t)/7)%TWOSET_SHORT.length];
+      out.push({key:"twoset-short",every:7,c:"",title:s[0],t:s[1]});
+    }
+  }
   // Training to failure too often
   { let sets=0,fail=0; const heavy=new Set(), COMPOUND=["Bench Press","Incline Dumbbell Press","Shoulder Press","Romanian Deadlift","Bulgarian Split Squats","Back Squat","Front Squat","Deadlift","Barbell Row","Leg Press","Close-Grip Bench Press","Hip Thrust","Lat Pulldown","Wide Grip Row","Close Grip Row"];
     rec.filter(s=>s.type==="gym").forEach(s=>s.exercises.forEach(e=>e.sets.forEach(x=>{sets++; if(x.f){fail++; if(COMPOUND.includes(e.name)) heavy.add(e.name)}})));
     const pc=sets?Math.round(fail/sets*100):0;
-    if(sets>=15&&pc>50){ const hv=[...heavy].slice(0,3);
+    if(sets>=15&&pc>50&&!ts){ const hv=[...heavy].slice(0,3);
       out.push({key:"failure-high",title:"Lots of sets to failure",
         t:`${pc}% of your gym sets in the last 4 weeks went to failure${hv.length?`, including heavy lifts like ${hv.join(", ")}`:""}. Keep 1–3 reps in reserve on most sets, save failure for the last set or for isolation exercises, and try a no-failure week every 4–6 weeks.`,
         html:`<p><b>${pc}%</b> of your gym sets in the last 4 weeks went to failure${hv.length?`, including heavy lifts like ${esc(hv.join(", "))}`:""}. Hard work is great, but failure on almost every set costs more than it gives.</p>
@@ -1470,8 +1523,8 @@ function bindData(){
 /* =========================================================
    MODALS
    ========================================================= */
-function openModal({tag,title,body,locked=false,onMount}){
-  const root=$("#modal-root"); root.innerHTML=`<div class="scrim" role="dialog" aria-modal="true" aria-labelledby="m-title"><div class="modal"><div class="mh"><span class="tag">${esc(tag)}</span><h2 id="m-title">${esc(title)}</h2></div><div class="mb">${body}</div></div></div>`;
+function openModal({tag,title,body,locked=false,onMount,wide=false}){
+  const root=$("#modal-root"); root.innerHTML=`<div class="scrim" role="dialog" aria-modal="true" aria-labelledby="m-title"><div class="modal${wide?" wide":""}"><div class="mh"><span class="tag">${esc(tag)}</span><h2 id="m-title">${esc(title)}</h2></div><div class="mb">${body}</div></div></div>`;
   const scrim=$(".scrim",root); const close=()=>{root.innerHTML="";document.removeEventListener("keydown",key)};
   const key=e=>{if(e.key==="Escape"&&!locked)close()}; document.addEventListener("keydown",key);
   scrim.addEventListener("click",e=>{if(e.target===scrim&&!locked)close()});
@@ -1532,8 +1585,15 @@ function openPbWeek(pi){
     }});
 }
 function openCoach(n){
-  openModal({tag:"Coach's note",title:n.title,locked:true,body:`${n.html||`<p>${esc(n.t)}</p>`}<div class="mf"><label class="readbox"><input type="checkbox" id="tip-read">I have read this</label><button type="button" class="btn primary" id="tip-close" disabled>Close</button></div>`,
+  openModal({tag:"Coach's note",title:n.title,locked:true,wide:!!n.wide,body:`${n.html||`<p>${esc(n.t)}</p>`}<div class="mf"><label class="readbox"><input type="checkbox" id="tip-read">I have read this</label><button type="button" class="btn primary" id="tip-close" disabled>Close</button></div>`,
     onMount:(root,close)=>{ const cb=$("#tip-read",root),bt=$("#tip-close",root); cb.onchange=()=>{bt.disabled=!cb.checked};
+      if(n.minRead){ // hide the tick box until there's been time to read it
+        const box=cb.closest(".readbox"); box.hidden=true; bt.hidden=true;
+        const w=document.createElement("span"); w.className="hint"; w.id="tip-wait"; box.after(w);
+        let left=n.minRead; const tick=()=>{ if(!w.isConnected){clearInterval(iv);return}
+          if(left<=0){clearInterval(iv); w.remove(); box.hidden=false; bt.hidden=false; return}
+          w.textContent=`Take your time. “I have read this” appears in ${left} s`; left--; };
+        const iv=setInterval(tick,1000); tick(); }
       bt.onclick=async()=>{ if(!cb.checked) return; close(); const p=S.popups;
         await savePopups({...p,lastTip:todayStr(),tipCount:(p.tipCount||0)+1,coachLog:{...(p.coachLog||{}),[n.key]:todayStr()}}); renderAll(); }; }});
 }
@@ -1561,7 +1621,7 @@ function openLibrary(start){
   let cat=start||"Away from the gym";
   const tipHtml=t=>`<details><summary>${esc(t.title)}${seen.has(t.id)?`<span class="seen" title="Already seen">✓</span>`:""}${cat==="All"?`<span class="tag">${esc(t.cat)}</span>`:""}</summary>
     ${t.quote?`<blockquote style="font-size:16px">“${esc(t.quote)}”</blockquote><cite>${esc(t.by)}</cite>`:""}<p style="font-size:14.5px">${esc(t.body)}</p>
-    ${t.points?`<ul style="margin:6px 0 0;padding-left:20px;display:grid;gap:4px;font-size:14.5px">${t.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</details>`;
+    ${t.html?t.html():t.points?`<ul style="margin:6px 0 0;padding-left:20px;display:grid;gap:4px;font-size:14.5px">${t.points.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>`:""}</details>`;
   openModal({tag:"Tips library",title:"Tips & workouts",body:`
     <p class="hint">${TIPS.length} tips and workouts. A new one pops up each day; you can read any of them here. ✓ = already seen.</p>
     <div class="libcats" id="lib-cats"></div>
@@ -1606,7 +1666,7 @@ function runPopups(){
   const p=S.popups; // one pop-up a day: the first time the site is opened each day
   if(p.lastTip!==today){
     // A coaching note about a real imbalance takes the slot (each one at most every 14 days); otherwise the next tip in the deck
-    const log=p.coachLog||{}, n=coachNotes().find(x=>!log[x.key]||daysBetween(log[x.key],todayStr())>=14);
+    const log=p.coachLog||{}, n=coachNotes().find(x=>!log[x.key]||daysBetween(log[x.key],todayStr())>=(x.every||14));
     if(n){ openCoach(n); return; }
     const recent=new Set((p.history||[]).slice(-40).map(h=>h.id)); let idx=(p.tipIdx||0), guard=0;
     while(recent.has(TIP_SEQ[idx%TIP_SEQ.length])&&guard++<TIP_SEQ.length) idx++;
