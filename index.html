@@ -2154,7 +2154,7 @@ function bestFor(n){ let b=null; S.sessions.forEach(s=>{ if(s.type!=="gym")retur
 function openGuide(n){
   const g=GUIDES[n], home=exerciseHome(n), b=bestFor(n), tm=isTimed(n);
   const root=$("#guide-root");
-  const pics=g&&g.img?`<div class="pics${g.img.length===1?" one":""}">${g.img.map((f,i)=>`<figure><img src="ex-img/${f.includes(".")?f:f+".svg"}" alt="${esc(n)}: ${esc(g.cap[i]||"")}" loading="lazy"><figcaption>${esc(g.cap[i]||"")}</figcaption></figure>`).join("")}</div>
+  const pics=g&&g.img?`<div class="pics${g.img.length===1?" one":""}">${g.img.map((f,i)=>`<figure><img src="${f.includes(".")?f:f+".svg"}" alt="${esc(n)}: ${esc(g.cap[i]||"")}" loading="lazy"><figcaption>${esc(g.cap[i]||"")}</figcaption></figure>`).join("")}</div>
       ${g.note?`<p class="hint" style="margin-top:-6px">${esc(g.note)}</p>`:""}${guideCredit(g)}`:(g&&g.note?`<p class="hint">${esc(g.note)}</p>`:"");
   const body=g?`${pics}
     <div class="mapwrap">${muscleMap(g.main,g.also)}<div class="key"><div><b>Main muscles</b><span class="dot" style="background:var(--mm-main)"></span>${g.main.map(m=>MUSCLE_LABEL[m]).join(", ")}</div>${g.also.length?`<div><b>Also working</b><span class="dot" style="background:var(--mm-also)"></span>${g.also.map(m=>MUSCLE_LABEL[m]).join(", ")}</div>`:""}</div></div>
