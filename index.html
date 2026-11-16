@@ -31,7 +31,7 @@
   --font:'Manrope',system-ui,-apple-system,'Segoe UI',sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
   --pop:#b42318; --pop-2:#8f1c13; --pop-tag:#ffd7a3;
-  --combo:#7c3aed; --free:#0e8f9a; --bw:#d9467a; --stretch:#e8590c;
+  --combo:#7c3aed; --free:#0e8f9a; --bw:#d9467a; --stretch:#e8590c; --plyo:#5f9e0c;
   --r:14px;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
@@ -43,7 +43,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6; --stretch:#fb8a3c;
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6; --stretch:#fb8a3c; --plyo:#a3e635;
   color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#080e1c; --surface:#111a2e; --surface-2:#16223b; --surface-3:#1d2b49;
@@ -54,7 +54,7 @@
   --push:#f0574d; --pull:#6694ff; --legs:#f5c33b; --cardio:#3ccf7f; --other:#9aa4b8;
   --ok:#4ade80; --warn:#fbbf24; --bad:#fca5a5;
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6; --stretch:#fb8a3c;
+  --pop:#a8261c; --pop-2:#7d1a12; --pop-tag:#ffd7a3; --combo:#a78bfa; --free:#2cc4cf; --bw:#f472b6; --stretch:#fb8a3c; --plyo:#a3e635;
   color-scheme:dark}
 *{box-sizing:border-box}
 img{max-width:100%}
@@ -156,6 +156,15 @@ input[type=number]{font-family:var(--mono)}
 .ex-name{font-weight:800;font-size:15.5px}
 .bwtag{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;background:var(--bw);color:#fff;font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;vertical-align:2px}
 .chip.bw{border-color:var(--bw)}
+.chip.plyo,.ex.plyo{--c:var(--plyo)}
+.chip.plyo{border-color:var(--plyo)}
+.chip.plyo:not([aria-pressed="true"]){color:var(--plyo)}
+.plyotag{background:var(--plyo);color:#16210a}
+.exgroup{margin-top:12px}
+.exgroup-h{font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;font-weight:800;color:var(--ink-soft);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.exgroup-h span{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);letter-spacing:0}
+.exgroup-h::after{content:"";flex:1;height:1px;background:var(--line)}
+.exgroup.plyo .exgroup-h{color:var(--plyo)}
 .chip.bw:not([aria-pressed="true"]){color:var(--bw)}
 .ex-last{font-size:11.5px;color:var(--ink-faint);font-family:var(--mono)}
 .ex-ctrl{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin:10px 0 8px;font-size:13px}
@@ -314,17 +323,30 @@ input[type=number]{font-family:var(--mono)}
 /* =========================================================
    CONTENT
    ========================================================= */
+/* Exercise library. "other" lists are built from these groups, in this order. */
+const EXERCISE_GROUPS = {
+  push:[["Chest",["Flat Dumbbell Press","Decline Bench Press","Machine Chest Press","Cable Chest Fly","Pec Deck","Close-Grip Bench Press"]],
+        ["Shoulders",["Arnold Press","Front Raises","Dumbbell Lateral Raises","Landmine Press"]],
+        ["Triceps",["Overhead Tricep Extension","Skull Crushers"]],
+        ["Bodyweight",["Push-Ups","Tricep Dips","Dips","Diamond Push-Ups","Wide Push-Ups","Decline Push-Ups","Pike Push-Ups"]],
+        ["Plyometrics",["Plyo Push-Ups","Clap Push-Ups","Medicine Ball Chest Pass"]]],
+  pull:[["Back",["Barbell Row","Single-Arm Dumbbell Row","T-Bar Row","Landmine Row","Straight-Arm Pulldown","Deadlift"]],
+        ["Rear shoulders & traps",["Face Pulls","Rear Delt Fly","Shrugs"]],
+        ["Biceps",["Preacher Curl","Incline Dumbbell Curl","Cable Curl"]],
+        ["Bodyweight",["Pull-Ups","Chin-Ups","Negative Pull-Ups","Inverted Rows","Dead Hang","Superman Hold"]],
+        ["Plyometrics",["Medicine Ball Slams","Rotational Med Ball Throws"]]],
+  legs:[["Quads",["Back Squat","Front Squat","Goblet Squat","Landmine Squat","Leg Press","Leg Extension","Walking Lunges","Step-Ups"]],
+        ["Hamstrings & glutes",["Hamstring Curl","Hip Thrust","Kettlebell Swings"]],
+        ["Calves",["Seated Calf Raise"]],
+        ["Core",["Cable Woodchoppers","Hanging Leg Raises","Plank","Side Plank","Hollow Body Hold","Dead Bug","Sit-Ups"]],
+        ["Full body",["Turkish Get-Up","Burpees","Mountain Climbers"]],
+        ["Bodyweight",["Bodyweight Squats","Reverse Lunges","Glute Bridges","Single-Leg Calf Raises","Wall Sit"]],
+        ["Plyometrics",["Box Jumps","Jump Squats","Pogo Jumps","Broad Jumps","Lateral Bounds","Skater Jumps","Tuck Jumps","Split Squat Jumps","Single-Leg Hops"]]]
+};
 const EXERCISES = {
-  push:{ normal:["Incline Dumbbell Press","Bench Press","Tricep Pushdowns","Shoulder Press","Cable Lateral Raises"],
-         other:["Flat Dumbbell Press","Decline Bench Press","Machine Chest Press","Cable Chest Fly","Pec Deck","Close-Grip Bench Press","Arnold Press","Front Raises","Dumbbell Lateral Raises","Overhead Tricep Extension","Skull Crushers","Landmine Press",
-           "Push-Ups","Tricep Dips","Dips","Diamond Push-Ups","Wide Push-Ups","Decline Push-Ups","Pike Push-Ups","Plyo Push-Ups"] },
-  pull:{ normal:["Lat Pulldown","Wide Grip Row","Close Grip Row","Bicep Curl","Hammer Curl"],
-         other:["Barbell Row","Single-Arm Dumbbell Row","T-Bar Row","Landmine Row","Face Pulls","Straight-Arm Pulldown","Rear Delt Fly","Preacher Curl","Incline Dumbbell Curl","Cable Curl","Shrugs","Deadlift",
-           "Pull-Ups","Chin-Ups","Negative Pull-Ups","Inverted Rows","Dead Hang","Superman Hold"] },
-  legs:{ normal:["Bulgarian Split Squats","Romanian Deadlift","Calf Raises","Decline Ab Crunches"],
-         other:["Back Squat","Front Squat","Goblet Squat","Landmine Squat","Leg Press","Leg Extension","Hamstring Curl","Walking Lunges","Step-Ups","Hip Thrust","Seated Calf Raise","Kettlebell Swings","Turkish Get-Up","Cable Woodchoppers",
-           "Bodyweight Squats","Jump Squats","Reverse Lunges","Glute Bridges","Single-Leg Calf Raises","Wall Sit","Box Jumps","Burpees","Mountain Climbers",
-           "Hanging Leg Raises","Plank","Side Plank","Hollow Body Hold","Dead Bug","Sit-Ups"] }
+  push:{ normal:["Incline Dumbbell Press","Bench Press","Tricep Pushdowns","Shoulder Press","Cable Lateral Raises"], other:EXERCISE_GROUPS.push.flatMap(g=>g[1]) },
+  pull:{ normal:["Lat Pulldown","Wide Grip Row","Close Grip Row","Bicep Curl","Hammer Curl"], other:EXERCISE_GROUPS.pull.flatMap(g=>g[1]) },
+  legs:{ normal:["Bulgarian Split Squats","Romanian Deadlift","Calf Raises","Decline Ab Crunches"], other:EXERCISE_GROUPS.legs.flatMap(g=>g[1]) }
 };
 const SPLITS = {push:"Push",pull:"Pull",legs:"Legs",pushpull:"Push/Pull",free:"Free Session"};
 const BASE_SPLITS=["push","pull","legs"];
@@ -334,7 +356,20 @@ const BODYWEIGHT=new Set(["Push-Ups","Tricep Dips","Dips","Diamond Push-Ups","Wi
   "Bodyweight Squats","Jump Squats","Reverse Lunges","Glute Bridges","Single-Leg Calf Raises","Wall Sit","Box Jumps","Burpees","Mountain Climbers",
   "Hanging Leg Raises","Plank","Side Plank","Hollow Body Hold","Dead Bug","Sit-Ups","Decline Ab Crunches"]);
 const TIMED=new Set(["Dead Hang","Superman Hold","Wall Sit","Plank","Side Plank","Hollow Body Hold"]);
-const isBW=n=>BODYWEIGHT.has(n), isTimed=n=>TIMED.has(n);
+const PLYO=new Set(EXERCISE_GROUPS.push.concat(EXERCISE_GROUPS.pull,EXERCISE_GROUPS.legs).filter(g=>g[0]==="Plyometrics").flatMap(g=>g[1]));
+["Box Jumps","Jump Squats","Pogo Jumps","Broad Jumps","Lateral Bounds","Skater Jumps","Tuck Jumps","Split Squat Jumps","Single-Leg Hops","Clap Push-Ups"].forEach(n=>BODYWEIGHT.add(n));
+const isBW=n=>BODYWEIGHT.has(n), isTimed=n=>TIMED.has(n), isPlyo=n=>PLYO.has(n);
+/* Groups shown in the Other tab for each day type (combo and free merge groups of the same name) */
+function groupsFor(sp){
+  const merge=list=>{ const m=new Map(); list.forEach(([g,ex])=>m.set(g,uniq([...(m.get(g)||[]),...ex]))); return [...m]; };
+  let gs;
+  if(sp==="pushpull") gs=merge([...EXERCISE_GROUPS.push,...EXERCISE_GROUPS.pull]);
+  else if(sp==="free") gs=[["Push day",EXERCISES.push.normal],["Pull day",EXERCISES.pull.normal],["Legs day",EXERCISES.legs.normal],...merge([...EXERCISE_GROUPS.push,...EXERCISE_GROUPS.pull,...EXERCISE_GROUPS.legs])];
+  else gs=EXERCISE_GROUPS[sp].map(g=>[g[0],g[1].slice()]);
+  // keep Bodyweight and Plyometrics together at the end
+  const tail=["Bodyweight","Plyometrics"]; gs=[...gs.filter(g=>!tail.includes(g[0])),...tail.map(t=>gs.find(g=>g[0]===t)).filter(Boolean)];
+  return gs;
+}
 /* Stretching after a session: [label, sub-label, short text for history/CSV] */
 const STRETCH=[["None","skipped it","none"],["Minimal","a quick one","minimal"],["5 mins","about 5","5 min"],["10 mins","about 10","10 min"],["10 mins +","more than 10","10+ min"]];
 const uniq=a=>[...new Set(a)];
@@ -576,8 +611,26 @@ const TIPS = [
  {id:"h9",cat:"Away from the gym",title:"How little you need",body:"Away for a week or two? Two or three short bodyweight sessions a week is enough to hold onto most of your strength and muscle. Keep the effort high, and don't stress about exact numbers. You'll pick up your gym weights again quickly when you're back."},
  {id:"h10",cat:"Away from the gym",title:"Holidays count as training",body:"Swimming, surfing, hiking, biking and playing touch on the beach all keep you fit. Log them under Other with an honest intensity, so your training load and calendar stay accurate while you're away."},
  {id:"h11",cat:"Away from the gym",title:"Home push and legs split",body:"Away for longer? Alternate two short sessions. Day A (push and core): push-up variations, pike push-ups, dips, plank, hollow hold. Day B (legs): squats, reverse lunges, glute bridges, single-leg calf raises, wall sit. 3 sets of each, every other day."},
- {id:"h12",cat:"Away from the gym",title:"Run plus finisher",body:"Go for a 20–25 minute jog, then finish with 3 rounds of: 15 push-ups, 20 squats, 20 sit-ups and a 30-second plank. Log the run as Cardio and the circuit as a Free Session."}
+ {id:"h12",cat:"Away from the gym",title:"Run plus finisher",body:"Go for a 20–25 minute jog, then finish with 3 rounds of: 15 push-ups, 20 squats, 20 sit-ups and a 30-second plank. Log the run as Cardio and the circuit as a Free Session."},
+ // ---- Plyometrics
+ {id:"p1",cat:"Plyometrics",title:"What are plyometrics?",body:"Plyometrics are jumps, bounds, hops and throws where you load a muscle and then explode straight away, like a spring. They train your body to produce force fast, not just a lot of it. That's the difference between being strong and being explosive.",again:1},
+ {id:"p2",cat:"Plyometrics",title:"Jump higher, move faster",body:"Plyometric training is one of the best-proven ways to improve vertical jump, sprint starts and change of direction. For basketball, that means more rebounds, quicker first steps and getting off the ground faster."},
+ {id:"p3",cat:"Plyometrics",title:"Strong bones for life",body:"Jumping and landing load your bones in a way that tells them to get stronger. Your teenage years are when you build most of your bone strength for life, so a few sets of jumps a week is a great investment."},
+ {id:"p4",cat:"Plyometrics",title:"Learn to land",body:"Good plyometric training teaches you to land softly with knees in line with your toes, not caving inwards. Practising this can lower the risk of knee injuries in sport. Land quietly: if it sounds like a crash, it is one."},
+ {id:"p5",cat:"Plyometrics",title:"Plyos go first",body:"Do your jumps and throws at the start of a session, after your warm-up and before heavy lifting. Explosive moves need fresh legs; done tired, they get sloppy and lose most of their benefit."},
+ {id:"p6",cat:"Plyometrics",title:"Count your foot contacts",body:"Coaches measure plyometrics in foot contacts (each landing counts). If you're new to them, around 60–100 contacts in a session is plenty, for example 4 × 5 box jumps, 3 × 6 broad jumps and 3 × 20 pogo jumps, twice a week."},
+ {id:"p7",cat:"Plyometrics",title:"Quality over quantity",body:"Every rep should be fast and powerful. As soon as your jumps get lower or your landings get louder, stop the set. Plyometrics done tired turn into cardio, and that's a different goal."},
+ {id:"p8",cat:"Plyometrics",title:"Listen to your knees and heels",body:"While you're still growing, the spots where tendons attach (just below the kneecap, and the back of the heel) can get sore with lots of jumping. If they ache after plyos, cut back for a week and tell a parent, coach or physio if it doesn't settle."},
+ {id:"p9",cat:"Plyometrics",title:"Try tuck jumps",body:"Jump straight up and pull your knees to your chest, then land softly and reset. 3 sets of 5. They build fast hip flexors and core and test how well you can absorb a landing."},
+ {id:"p10",cat:"Plyometrics",title:"Try split squat jumps",body:"From a lunge position, jump up and switch legs in the air, landing in a lunge on the other side. 3 sets of 6 each leg. Great single-leg power for sprinting and jumping off one foot."},
+ {id:"p11",cat:"Plyometrics",title:"Try single-leg hops",body:"Hop forward on one leg 3–5 times, sticking each landing for a second before the next. Builds ankle and knee stability and one-legged power. Start small and keep the knee in line with your toes."},
+ {id:"p12",cat:"Plyometrics",title:"Try clap push-ups",body:"Explode up from a push-up hard enough to clap before you land with soft elbows. Start with plyo push-ups (hands just leave the floor) and progress when they feel easy. 3 sets of 4–5."},
+ {id:"p13",cat:"Plyometrics",title:"Try medicine ball chest passes",body:"Stand facing a wall and throw a medicine ball from your chest as hard as you can, catch it and repeat. 3 sets of 8. Upper-body power for passing and boxing out, and a great way to warm up before bench."},
+ {id:"p14",cat:"Plyometrics",title:"Jump after you lift",body:"An advanced trick: do a set of squats or split squats, rest about 2 minutes, then do 3–5 jumps. Your muscles are 'switched on' from the lift and the jumps often feel more powerful. Try it once you're comfortable with the basics."},
+ {id:"p15",cat:"Plyometrics",title:"Surface matters",body:"Do jumps on grass, a sprung gym floor or a rubber mat rather than concrete. Soft, even surfaces are kinder on your joints, and sturdy trainers help too."}
 ];
+/* Tips booked for particular days (date → tip id) */
+const TIP_SCHEDULE={"2026-11-18":"p1","2026-11-21":"p6","2026-11-25":"p9","2026-11-28":"p10"};
 /* Quick stretch tips: shown now and then when "None" is chosen for stretching; also in the Tips library (not in the daily deck) */
 const QUICK_STRETCH=[
  {id:"qs1",cat:"Quick stretches",title:"The 90-second lunchtime three",body:"Short on time? These three cover most of what you train. 30 seconds each, done before you leave the gym:",points:["Doorway chest stretch (forearm on the frame, step through)","Standing hamstring stretch (heel on a bench, hinge forward)","Half-kneeling hip-flexor stretch (squeeze the back glute)"]},
@@ -781,8 +834,9 @@ function exCard(name,split){
   const lastTxt = last ? "Last "+fmtShort(last.dt)+": "+last.e.sets.map(s=>`${s.w||0}×${s.r||0}${s.f?"F":""}`).join(" · ") : "No previous log";
   const ph = last ? topSet(last.e) : null;
   const sid=slug(name), bw=isBW(name), tm=isTimed(name);
-  return `<div class="ex split-${split}${bw?" bw":""} ${st.inc?"":"off"}" data-ex="${esc(name)}">
-    <div class="ex-head"><div><div class="ex-name">${esc(name)}${bw?`<span class="bwtag">Bodyweight</span>`:""}</div><div class="ex-last">${esc(lastTxt)}</div></div>
+  const py=isPlyo(name);
+  return `<div class="ex split-${split}${py?" plyo":bw?" bw":""} ${st.inc?"":"off"}" data-ex="${esc(name)}">
+    <div class="ex-head"><div><div class="ex-name">${esc(name)}${py?`<span class="bwtag plyotag">Plyometric</span>`:bw?`<span class="bwtag">Bodyweight</span>`:""}</div><div class="ex-last">${esc(lastTxt)}</div></div>
       <label class="chk"><input type="checkbox" id="inc-${sid}" data-act="inc" ${st.inc?"checked":""}>Done</label></div>
     ${st.inc?`
     <div class="ex-ctrl">
@@ -811,7 +865,11 @@ function renderInput(){
         ${sp==="free"?"":`<button type="button" aria-pressed="${F.sub==="normal"}" data-sub="normal" style="--c:var(--navy)">Normal workout</button>`}
         <button type="button" aria-pressed="${F.sub==="other"}" data-sub="other" style="--c:var(--navy)">${sp==="free"?"Your exercises":`Other ${SPLITS[sp].toLowerCase()} exercises`}${F.extras[sp].length?` (${F.extras[sp].length})`:""}</button>
       </div>
-      ${F.sub==="other"?`<div><h3>${sp==="free"?"Add exercises from the full library":`Add from the ${SPLITS[sp]} library`}</h3><p class="hint" style="margin:-4px 0 8px"><span class="bwtag" style="margin:0 4px 0 0">Bodyweight</span> pink ones need no equipment.</p><div class="chips">${otherList(sp).map(n=>`<button type="button" class="chip split-${sp}${isBW(n)?" bw":""}" data-extra="${esc(n)}" aria-pressed="${F.extras[sp].includes(n)}">${F.extras[sp].includes(n)?"✓ ":"+ "}${esc(n)}</button>`).join("")}<button type="button" class="chip" data-custom="1" aria-pressed="${F.customOpen}">+ Other…</button></div>
+      ${F.sub==="other"?`<div><h3>${sp==="free"?"Add exercises from the full library":`Add from the ${SPLITS[sp]} library`}</h3><p class="hint" style="margin:-4px 0 4px"><span class="bwtag" style="margin:0 4px 0 0">Bodyweight</span> no equipment needed · <span class="bwtag plyotag" style="margin:0 4px 0 0">Plyometric</span> jumps and explosive moves</p>
+        ${[...groupsFor(sp),...(ownExercises(sp).length?[["Your own exercises",ownExercises(sp)]]:[])].map(([g,list])=>`<div class="exgroup${g==="Plyometrics"?" plyo":""}"><div class="exgroup-h">${esc(g)} <span>${list.length}</span></div>
+          ${g==="Plyometrics"?`<p class="hint" style="margin:0 0 6px">Do these first, while you're fresh. Land softly, keep sets short and quality high, and rest fully between sets.</p>`:""}
+          <div class="chips">${list.map(n=>`<button type="button" class="chip split-${sp}${isPlyo(n)?" plyo":isBW(n)?" bw":""}" data-extra="${esc(n)}" aria-pressed="${F.extras[sp].includes(n)}">${F.extras[sp].includes(n)?"✓ ":"+ "}${esc(n)}</button>`).join("")}</div></div>`).join("")}
+        <div class="chips" style="margin-top:12px"><button type="button" class="chip" data-custom="1" aria-pressed="${F.customOpen}">+ Other…</button></div>
         ${F.customOpen?`<div class="row" style="margin-top:10px"><label class="f" style="flex:1 1 220px">Exercise not in the list<input type="text" id="custom-ex" maxlength="40" placeholder="e.g. Cable Crossover" autocomplete="off"></label><button type="button" class="btn sm primary" id="custom-add">Add exercise</button></div><p class="err" id="custom-err" style="margin-top:6px"></p>`:""}</div>`:""}
       ${list.length?`<div class="exlist" id="exlist">${list.map(n=>exCard(n,sp)).join("")}</div>`:`<p class="hint">${sp==="free"?"Tap any exercise above to add it to this session. Use + Other… for anything not listed.":"Tap exercises above to add them to today's session."}</p>`}
       <div class="row" style="align-items:flex-end;gap:18px;border-top:1px solid var(--line);padding-top:14px">
@@ -879,8 +937,9 @@ function syncCopy(card,name){
   for(let i=1;i<st.n;i++){st.sets[i].w=st.sets[0].w;st.sets[i].r=st.sets[0].r;}
   $$(".set",card).forEach((row,i)=>{ if(i>0){ $('[data-f="w"]',row).value=st.sets[0].w; $('[data-f="r"]',row).value=st.sets[0].r; } });
 }
+function ownExercises(sp){ const all=otherList(sp), lib=new Set(groupsFor(sp).flatMap(g=>g[1])); return all.filter(n=>!lib.has(n)); }
 function otherList(sp){
-  const base=EXERCISES[sp].other, seen=new Set([...EXERCISES[sp].normal,...base]), extra=[];
+  const base=groupsFor(sp).flatMap(g=>g[1]), seen=new Set([...EXERCISES[sp].normal,...base]), extra=[];
   const fromSplits=sp==="free"?Object.keys(SPLITS):sp==="pushpull"?["push","pull","pushpull"]:[sp];
   S.sessions.forEach(s=>{ if(s.type==="gym"&&fromSplits.includes(s.split)) s.exercises.forEach(e=>{ if(!seen.has(e.name)){seen.add(e.name);extra.push(e.name)} }) });
   F.extras[sp].forEach(n=>{ if(!seen.has(n)){seen.add(n);extra.push(n)} });
@@ -1662,6 +1721,10 @@ function runPopups(){
   const today=todayStr(); if(popupDay===today||$("#modal-root").innerHTML) return; popupDay=today;
   if(!S.profile){openSetup();return}
   const pi=pbInfo(); if(pi&&pi.live&&S.popups.pbAck!==pi.cycle){openPbWeek(pi);return}
+  // Scheduled tips: shown on (or within 3 days after) their date, once each
+  { const seenIds=new Set((S.popups.history||[]).map(h=>h.id));
+    const due=Object.entries(TIP_SCHEDULE).filter(([d,id])=>d<=today&&daysBetween(d,today)<=3&&!seenIds.has(id)&&TIP_BY_ID[id]).sort();
+    if(due.length&&S.popups.lastTip!==today){ openTip(TIP_BY_ID[due[0][1]],S.popups.tipIdx||0,true); return; } }
   if(S.popups.nextTip&&TIP_BY_ID[S.popups.nextTip]){ openTip(TIP_BY_ID[S.popups.nextTip],S.popups.tipIdx||0,true); return; }
   const p=S.popups; // one pop-up a day: the first time the site is opened each day
   if(p.lastTip!==today){
